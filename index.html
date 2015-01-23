@@ -30,8 +30,16 @@ function bullet(x,y,exists) {
 	this.y = y;
 	this.exists = exists;
 }
-//Create zombie instance - for now.  This should be updated
-var z1 = new zombie(800,200,false);
+
+//Create arrays to hold zombies and bullets
+var bullets = [];
+var zombies = [];
+
+//Keep track of which index to add to in the arrays
+var bulletNum = 0;
+var zombieNum = 0;
+//Create a single zombie instance - for now.  This should be updated
+zombies[zombieNum] = new zombie(800,200,false);
 
 //Initial function to set shit up
 function init() {
@@ -56,26 +64,30 @@ function doGameLoop() {
 	hero.src = 'hero.png';
 	ctx.drawImage(map, 0,0);
     ctx.drawImage(hero, heroX, heroY);
-	if(z1.dead){ 
-		ctx.drawImage(zombieDeadImg, z1.x, z1.y);
-	} else {
-		ctx.drawImage(zombieImg, z1.x, z1.y);
+	for(var j = 0; j < zombies.length; j++) {
+		if(zombies[j].dead){ 
+			ctx.drawImage(zombieDeadImg, zombies[j].x, zombies[j].y);
+		} else {
+			ctx.drawImage(zombieImg, zombies[j].x, zombies[j].y);
+		}
 	}
-		
-	if(b1.exists) { //this needs to be made into a general case (maybe for loop?)
-		ctx.drawImage(bulletImg, b1.x, b1.y);
-		b1.x += 30;
-			if(b1.x > 1100) {
-				b1.exists = false;
+	for(var i = 0; i < bullets.length; i++) {
+		if(bullets[i].exists) { 
+			ctx.drawImage(bulletImg, bullets[i].x, bullets[i].y);
+			bullets[i].x += 30;
+			if(bullets[i].x > 1100) {
+				bullets[i].exists = false;
 			}
 		}
-		if(b1.x > z1.x && b1.y > z1.y && b1.y < z1.y + 260 && b1.exists) {
-			b1.exists = false;
-			ctx.drawImage(blood, z1.x  + 100, b1.y); //this should probably exist for longer than 20ms
-			z1.dead = true;
+		if(bullets[i].x > zombies[zombieNum].x && bullets[i].y > zombies[zombieNum].y && bullets[i].y < zombies[zombieNum].y + 260 && bullets[i].exists) {
+			//zombies[zombieNum] is ghetto and won't detect all zombies.  This should probably be a nested For loop
+			bullets[i].exists = false;
+			ctx.drawImage(blood, zombies[zombieNum].x  + 100, bullets[i].y); //this should probably exist for longer than 20ms
+			zombies[zombieNum].dead = true;
 		}
 
-      }
+    }
+}
 	  // Get key press.
 
 
@@ -125,8 +137,9 @@ function doGameLoop() {
         }
       }
 	function fireBullet() {
-		//create instance of bullet. this will need to be fixed so it can handle more than one
-		window.b1 = new bullet(heroX + 172, heroY + 65, true); //this function should maybe be scrapped so that this variable doesn't need to be global
+		
+		bullets[bulletNum] = new bullet(heroX + 172, heroY + 65, true); 
+		bulletNum++;
 	}
 	 
 </script>
