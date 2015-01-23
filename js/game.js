@@ -14,7 +14,8 @@ function zombie(x,y,dead) {
 	this.x = x;
 	this.y = y;
 	this.dead = dead;
-};
+}
+
 //Bullet class
 function bullet(x,y,exists) {
 	this.x = x;
@@ -29,6 +30,7 @@ var zombies = [];
 //Keep track of which index to add to in the arrays
 var bulletNum = 0;
 var zombieNum = 0;
+
 //Create a single zombie instance - for now.  This should be updated
 zombies[zombieNum] = new zombie(800,200,false);
 
@@ -40,15 +42,14 @@ function init() {
 	bulletImg.src = 'img/bullet.png';
 	zombieImg.src = 'img/zombie.png';
 	zombieDeadImg.src = 'img/zombieDead.png';
-        ctx.drawImage(map, 0, 0);
-		ctx.drawImage(zombieImg, 800, 200); //hardcoding x and y for now. Remember to change this
-		ctx.drawImage(hero, 30,200);
-		
-		
-	 gameLoop = setInterval(doGameLoop, 20);
-
-	 window.addEventListener('keydown', whatKey, true);
-	  }
+	
+	ctx.drawImage(map, 0, 0);
+	ctx.drawImage(zombieImg, 800, 200); //hardcoding x and y for now. Remember to change this
+	ctx.drawImage(hero, 30,200);
+			
+	gameLoop = setInterval(doGameLoop, 20);
+	window.addEventListener('keydown', whatKey, true);
+}
 	
 //Main loop to listen for keypresses and check for collisions, etc
 function doGameLoop() {
@@ -76,57 +77,56 @@ function doGameLoop() {
 			ctx.drawImage(blood, zombies[zombieNum].x  + 100, bullets[i].y); //this should probably exist for longer than 20ms
 			zombies[zombieNum].dead = true;
 		}
-
     }
 }
-	  // Get key press.
 
+// Get key press.
+function whatKey(evt) {
 
-      function whatKey(evt) {
-
-        switch (evt.keyCode) {
-		case 32:
+    switch (evt.keyCode) {
+	case 32:
 		fireBullet();
+	break;
+
+	// Left arrow.
+	case 37:
+		heroX = heroX - 30;
+		if (heroX < 0) {
+			// If at edge, reset position.
+			heroX = 0;
+		}
 		break;
 
-          // Left arrow.
-        case 37:
-          heroX = heroX - 30;
-          if (heroX < 0) {
-            // If at edge, reset position.
-            heroX = 0;
-          }
-          break;
+	// Right arrow.
+	case 39:
+		heroX = heroX + 30;
+		if (heroX > 420) {
+			// If at edge, reset position.
+			heroX = 420;
+		}
+		break;
 
-          // Right arrow.
-        case 39:
-          heroX = heroX + 30;
-          if (heroX > 420) {
-            // If at edge, reset position.
-            heroX = 420;
-          }
-          break;
-
-          // Down arrow
-        case 40:
-          heroY = heroY + 30;
-          if (heroY > 510) {
-            // If at edge, reset position.
+	// Down arrow
+	case 40:
+		heroY = heroY + 30;
+		if (heroY > 510) {
+			// If at edge, reset position.
             heroY = 510;
-          }
-          break;
+		}
+		break;
 
-          // Up arrow 
-        case 38:
-          heroY = heroY - 30;
-          if (heroY < 0) {
-            // If at edge, reset position.
-            heroY = 0;
-          }
-          break;
-
-        }
-      }
+	// Up arrow 
+	case 38:
+		heroY = heroY - 30;
+		if (heroY < 0) {
+			// If at edge, reset position.
+			heroY = 0;
+		}
+		break;
+	}
+}
+      
+      
 	function fireBullet() {
 		
 		bullets[bulletNum] = new bullet(heroX + 172, heroY + 65, true); 
