@@ -1,0 +1,162 @@
+<html>
+<head>
+<title>Funky Zombie Killer</title>
+</head>
+<body onload="init()">
+<canvas id="map" width="1100" height="600"></canvas>
+<script>
+
+
+var c = document.getElementById("map");
+var ctx = c.getContext("2d");
+var imageObj = new Image();
+var heroX = 30;
+var heroY = 200;
+var back = new Image();
+var oldBack = new Image();
+var hero = new Image();
+var oldHeroX = 30;
+var oldHeroY = 200;
+var bulletExists = false;
+var bulletX;
+var bulletY;
+var bullet = new Image();
+var zombie = new Image();
+var zombieX = 800;
+var zombieY = 200;
+var blood = new Image();
+var dead = false;
+var zombieDead = new Image();
+
+	function init() {
+	blood.src = 'blood.png';
+	imageObj.src = 'map.png';
+	hero.src = 'hero.png';
+	bullet.src = 'bullet.png';
+	zombie.src = 'zombie.png';
+	zombieDead.src = 'zombieDead.png';
+        ctx.drawImage(imageObj, 0, 0);
+		ctx.drawImage(zombie, zombieX, zombieY);
+		//back = ctx.getImageData(oldHeroX, oldHeroY, 172, 234);
+		oldBack = ctx.getImageData(oldHeroX, oldHeroY, 172, 234);
+		ctx.drawImage(hero, 30,200);
+		
+      
+      
+	  
+	  
+	 gameLoop = setInterval(doGameLoop, 20);
+	  //doGameLoop();
+	 window.addEventListener('keydown', whatKey, true);
+	  }
+	 
+	  function doGameLoop() {
+		hero.src = 'hero.png';
+        // Put old background down to erase shipe.
+        //ctx.putImageData(oldBack, oldHeroX, oldHeroY);
+		ctx.drawImage(imageObj, 0,0);
+        // Put ship in new position.
+        ctx.drawImage(hero, heroX, heroY);
+		if(dead){
+		ctx.drawImage(zombieDead, zombieX, zombieY);
+		} else {
+		ctx.drawImage(zombie, zombieX, zombieY);
+		}
+		
+		if(bulletExists) {
+		ctx.drawImage(bullet, bulletX, bulletY);
+		bulletX += 30;
+			if(bulletX > 1100) {
+				bulletExists = false;
+			}
+		}
+		if(bulletX > zombieX && bulletY > zombieY && bulletY < zombieY + 260 && bulletExists) {
+			bulletExists = false;
+			ctx.drawImage(blood, zombieX  + 100, bulletY);
+			dead = true;
+			//alert('You killed the zombie!');
+		}
+
+      }
+	  // Get key press.
+
+
+      function whatKey(evt) {
+		
+        // Flag to put variables back if we hit an edge of the board.
+        var flag = 0;
+
+        // Get where the ship was before key process.
+        oldHeroX = heroX;
+        oldHeroY = heroY;
+        oldBack = back;
+
+        switch (evt.keyCode) {
+		case 32:
+		fireBullet();
+		break;
+
+          // Left arrow.
+        case 37:
+          heroX = heroX - 30;
+          if (heroX < 0) {
+            // If at edge, reset ship position and set flag.
+            heroX = 0;
+            flag = 1;
+          }
+          break;
+
+          // Right arrow.
+        case 39:
+          heroX = heroX + 30;
+          if (heroX > 420) {
+            // If at edge, reset ship position and set flag.
+            heroX = 770;
+            flag = 1;
+          }
+          break;
+
+          // Down arrow
+        case 40:
+          heroY = heroY + 30;
+          if (heroY > 510) {
+            // If at edge, reset ship position and set flag.
+            heroY = 570;
+            flag = 1;
+          }
+          break;
+
+          // Up arrow 
+        case 38:
+          heroY = heroY - 30;
+          if (heroY < 0) {
+            // If at edge, reset ship position and set flag.
+            heroY = 0;
+            flag = 1;
+          }
+          break;
+
+        }
+		// If flag is set, the ship did not move.
+        // Put everything back the way it was.
+        if (flag) {
+          heroX = oldHeroX;
+          heroY = oldHeroY;
+          back = oldBack;
+        } else {
+		
+          // Otherwise, get background where the ship will go
+          // So you can redraw background when the ship
+          // moves again.
+          back = ctx.getImageData(heroX, heroY, 172, 234);
+        }
+      }
+	function fireBullet() {
+		bulletExists = true;
+		bulletX = heroX + 172;
+		bulletY = heroY + 65;
+	}
+	 
+</script>
+</body>
+</html>
