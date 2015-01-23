@@ -9,72 +9,70 @@
 
 var c = document.getElementById("map");
 var ctx = c.getContext("2d");
-var imageObj = new Image();
+var map = new Image();
 var heroX = 30;
 var heroY = 200;
-var back = new Image();
-var oldBack = new Image();
 var hero = new Image();
-var oldHeroX = 30;
-var oldHeroY = 200;
-var bulletExists = false;
-var bulletX;
-var bulletY;
-var bullet = new Image();
-var zombie = new Image();
-var zombieX = 800;
-var zombieY = 200;
+var bulletImg = new Image();
+var zombieImg = new Image();
 var blood = new Image();
-var dead = false;
-var zombieDead = new Image();
+var zombieDeadImg = new Image();
 
-	function init() {
+//Zombie class
+function zombie(x,y,dead) {
+	this.x = x;
+	this.y = y;
+	this.dead = dead;
+};
+//Bullet class
+function bullet(x,y,exists) {
+	this.x = x;
+	this.y = y;
+	this.exists = exists;
+}
+//Create zombie instance - for now.  This should be updated
+var z1 = new zombie(800,200,false);
+
+//Initial function to set shit up
+function init() {
 	blood.src = 'blood.png';
-	imageObj.src = 'map.png';
+	map.src = 'map.png';
 	hero.src = 'hero.png';
-	bullet.src = 'bullet.png';
-	zombie.src = 'zombie.png';
-	zombieDead.src = 'zombieDead.png';
-        ctx.drawImage(imageObj, 0, 0);
-		ctx.drawImage(zombie, zombieX, zombieY);
-		//back = ctx.getImageData(oldHeroX, oldHeroY, 172, 234);
-		oldBack = ctx.getImageData(oldHeroX, oldHeroY, 172, 234);
+	bulletImg.src = 'bullet.png';
+	zombieImg.src = 'zombie.png';
+	zombieDeadImg.src = 'zombieDead.png';
+        ctx.drawImage(map, 0, 0);
+		ctx.drawImage(zombieImg, 800, 200); //hardcoding x and y for now. Remember to change this
 		ctx.drawImage(hero, 30,200);
 		
-      
-      
-	  
-	  
+		
 	 gameLoop = setInterval(doGameLoop, 20);
-	  //doGameLoop();
+
 	 window.addEventListener('keydown', whatKey, true);
 	  }
-	 
-	  function doGameLoop() {
-		hero.src = 'hero.png';
-        // Put old background down to erase shipe.
-        //ctx.putImageData(oldBack, oldHeroX, oldHeroY);
-		ctx.drawImage(imageObj, 0,0);
-        // Put ship in new position.
-        ctx.drawImage(hero, heroX, heroY);
-		if(dead){
-		ctx.drawImage(zombieDead, zombieX, zombieY);
-		} else {
-		ctx.drawImage(zombie, zombieX, zombieY);
-		}
+	
+//Main loop to listen for keypresses and check for collisions, etc
+function doGameLoop() {
+	hero.src = 'hero.png';
+	ctx.drawImage(map, 0,0);
+    ctx.drawImage(hero, heroX, heroY);
+	if(z1.dead){ 
+		ctx.drawImage(zombieDeadImg, z1.x, z1.y);
+	} else {
+		ctx.drawImage(zombieImg, z1.x, z1.y);
+	}
 		
-		if(bulletExists) {
-		ctx.drawImage(bullet, bulletX, bulletY);
-		bulletX += 30;
-			if(bulletX > 1100) {
-				bulletExists = false;
+	if(b1.exists) { //this needs to be made into a general case (maybe for loop?)
+		ctx.drawImage(bulletImg, b1.x, b1.y);
+		b1.x += 30;
+			if(b1.x > 1100) {
+				b1.exists = false;
 			}
 		}
-		if(bulletX > zombieX && bulletY > zombieY && bulletY < zombieY + 260 && bulletExists) {
-			bulletExists = false;
-			ctx.drawImage(blood, zombieX  + 100, bulletY);
-			dead = true;
-			//alert('You killed the zombie!');
+		if(b1.x > z1.x && b1.y > z1.y && b1.y < z1.y + 260 && b1.exists) {
+			b1.exists = false;
+			ctx.drawImage(blood, z1.x  + 100, b1.y); //this should probably exist for longer than 20ms
+			z1.dead = true;
 		}
 
       }
@@ -82,14 +80,6 @@ var zombieDead = new Image();
 
 
       function whatKey(evt) {
-		
-        // Flag to put variables back if we hit an edge of the board.
-        var flag = 0;
-
-        // Get where the ship was before key process.
-        oldHeroX = heroX;
-        oldHeroY = heroY;
-        oldBack = back;
 
         switch (evt.keyCode) {
 		case 32:
@@ -100,9 +90,8 @@ var zombieDead = new Image();
         case 37:
           heroX = heroX - 30;
           if (heroX < 0) {
-            // If at edge, reset ship position and set flag.
+            // If at edge, reset position.
             heroX = 0;
-            flag = 1;
           }
           break;
 
@@ -110,9 +99,8 @@ var zombieDead = new Image();
         case 39:
           heroX = heroX + 30;
           if (heroX > 420) {
-            // If at edge, reset ship position and set flag.
-            heroX = 770;
-            flag = 1;
+            // If at edge, reset position.
+            heroX = 420;
           }
           break;
 
@@ -120,9 +108,8 @@ var zombieDead = new Image();
         case 40:
           heroY = heroY + 30;
           if (heroY > 510) {
-            // If at edge, reset ship position and set flag.
-            heroY = 570;
-            flag = 1;
+            // If at edge, reset position.
+            heroY = 510;
           }
           break;
 
@@ -130,31 +117,16 @@ var zombieDead = new Image();
         case 38:
           heroY = heroY - 30;
           if (heroY < 0) {
-            // If at edge, reset ship position and set flag.
+            // If at edge, reset position.
             heroY = 0;
-            flag = 1;
           }
           break;
 
         }
-		// If flag is set, the ship did not move.
-        // Put everything back the way it was.
-        if (flag) {
-          heroX = oldHeroX;
-          heroY = oldHeroY;
-          back = oldBack;
-        } else {
-		
-          // Otherwise, get background where the ship will go
-          // So you can redraw background when the ship
-          // moves again.
-          back = ctx.getImageData(heroX, heroY, 172, 234);
-        }
       }
 	function fireBullet() {
-		bulletExists = true;
-		bulletX = heroX + 172;
-		bulletY = heroY + 65;
+		//create instance of bullet. this will need to be fixed so it can handle more than one
+		window.b1 = new bullet(heroX + 172, heroY + 65, true); //this function should maybe be scrapped so that this variable doesn't need to be global
 	}
 	 
 </script>
