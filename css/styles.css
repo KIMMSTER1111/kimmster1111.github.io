@@ -5,7 +5,8 @@ fieldset, img { border:0 }
 address, caption, cite, code, dfn, em, strong, th, var { font-style:normal; font-weight:normal }
 ol, ul, li { list-style:none }
 caption, th { text-align:left }
-h1, h2, h3, h4, h5, h6 { font-size:100%; font-weight:normal }
+h1 { font-size:200%; font-weight:bold; color: #FF0000; text-align: center } 
+h2, h3, h4, h5, h6 { font-size:100%; font-weight:normal; color: #FF0000; text-align: center }
 q:before, q:after { content:''}
 strong { font-weight:bold }
 em { font-style:italic }
@@ -20,7 +21,7 @@ body, html {
 	width: 1100px;
 	height: 600px;
 	margin: 0px auto;
-	margin-top: 100px;
+	margin-top: 0px; /* Decreased this because 100px was too big for my 1366x768 laptop screen.  I got a scroll bar. */
 	overflow: hidden;
 	position: relative;
 }
