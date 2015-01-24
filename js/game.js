@@ -47,7 +47,6 @@ var bulletNum = 0;
 var zombieNum = 0;
 
 //Create zombie
-//This should not be used yet, isn't compatible with hit detection/zombies won't get drawn
 function createZombie() {
 	zombies[zombieNum] = new zombie(randomInt(300, 1000),randomInt(-50, 500),false);
 	zombieNum++;
@@ -58,11 +57,10 @@ function init() {
 	ctx.drawImage(map, 0, 0);
 	ctx.drawImage(hero, 30,200);
 		
-	//createZombie();
-	zombies[zombieNum] = new zombie(randomInt(300, 1000),randomInt(-50, 500),false);
+	createZombie();
 	
 	gameLoop = setInterval(doGameLoop, 1);
-	//zombieLoop = setInterval(doZombieLoop, 2000);
+	zombieLoop = setInterval(doZombieLoop, 2000);
 	//clearInterval() will stop setInterval
 	
 	window.addEventListener('keydown', whatKey, true);
@@ -87,24 +85,30 @@ function doGameLoop() {
 	for(var i = 0; i < bullets.length; i++) {
 		if(bullets[i].exists) { 
 			ctx.drawImage(bulletImg, bullets[i].x, bullets[i].y);
-			bullets[i].x += 30;
+			bullets[i].x += 30;  //This should maybe be a variable to allow for a variety of bullet speeds
 			if(bullets[i].x > 1100) {
 				bullets[i].exists = false;
+				bullets.splice(i, 1);
+				bulletNum--;
 			}
 		}
-		if(bullets[i].x > zombies[zombieNum].x && bullets[i].y > zombies[zombieNum].y && bullets[i].y < zombies[zombieNum].y + 260 && bullets[i].exists) {
-			//zombies[zombieNum] is ghetto and won't detect all zombies.  This should probably be a nested For loop
+		for(j = 0; j < zombies.length; j++) {
+			if(bullets[i].x > zombies[j].x && bullets[i].y > zombies[j].y && bullets[i].y < zombies[j].y + 260 && bullets[i].exists && zombies[j].dead ==false) {
 			bullets[i].exists = false;
-			ctx.drawImage(blood, zombies[zombieNum].x  + 100, bullets[i].y); //this should probably exist for longer than 20ms
-			zombies[zombieNum].dead = true;
+			ctx.drawImage(blood, zombies[j].x  + 100, bullets[i].y); //this should probably exist for longer than 20ms
+			zombies[j].dead = true;
+			bullets.splice(i, 1);
+			bulletNum--;
+			//If you kill zombies out of order, this can cause new zombies to overwrite existing ones. Need good way to despawn zombies and prevent zombieNum from blowing up!
+			//zombieNum--;
+			}
 		}
     }
 }
 
 //Zombie generating loop
 function doZombieLoop() {
-	//This should not be used yet, isn't compatible with hit detection/zombies won't get drawn
-	//createZombie();
+	createZombie();
 }
 
 
