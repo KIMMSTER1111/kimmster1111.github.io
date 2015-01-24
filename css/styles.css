@@ -5,16 +5,30 @@ fieldset, img { border:0 }
 address, caption, cite, code, dfn, em, strong, th, var { font-style:normal; font-weight:normal }
 ol, ul, li { list-style:none }
 caption, th { text-align:left }
-h1 { font-size:200%; font-weight:bold; color: #FF0000; text-align: center } 
-h2, h3, h4, h5, h6 { font-size:100%; font-weight:normal; color: #FF0000; text-align: center }
+h1, h2, h3, h4, h5, h6 { font-size:100%; font-weight:normal }
 q:before, q:after { content:''}
 strong { font-weight:bold }
 em { font-style:italic }
 a img { border:none; outline: none; }
-/* end reset */
+/* end reset 
+leave reset css as is and add overriding styles below */
 
 body, html {
 	background: #000;
+}
+
+h1 { 
+	font-size:200%;
+	font-weight:bold;
+	color: #FF0000;
+	text-align: center
+}
+
+h2, h3, h4, h5, h6 {
+	font-size:100%;
+	font-weight:normal;
+	color: #FF0000;
+	text-align: center
 }
 
 #container {
