@@ -125,6 +125,17 @@ function doZombieLoop() {
 function whatKey(evt) {
 
     switch (evt.keyCode) {
+	//Escape key
+	case 27:
+		//This kills the loops, performing more of a "quit" than a pause. However, we could
+		//detect whether the game is paused and if so, call the setIntervals again.
+		clearInterval(gameLoop);
+		clearInterval(zombieLoop);
+		ctx.font = "30px Arial";
+		ctx.strokeStyle = 'red';
+		ctx.strokeText("Paused",500,300);
+	break;
+	
 	case 32:
 		fireBullet();
 	break;
