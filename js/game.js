@@ -25,10 +25,11 @@ function randomInt(min,max) {
 }
 
 //Zombie class
-function zombie(x,y,dead) {
+function zombie(x,y,dead, rot) {
 	this.x = x;
 	this.y = y;
 	this.dead = dead;
+	this.rot = rot; //rot is a timer to determine when to remove the zombie after it dies
 }
 
 //Bullet class
@@ -48,7 +49,7 @@ var zombieNum = 0;
 
 //Create zombie
 function createZombie() {
-	zombies[zombieNum] = new zombie(randomInt(300, 1000),randomInt(-50, 500),false);
+	zombies[zombieNum] = new zombie(randomInt(300, 1000),randomInt(-50, 500),false, 0);
 	zombieNum++;
 }
 
@@ -75,10 +76,17 @@ function doGameLoop() {
     
     
 	for(var j = 0; j < zombies.length; j++) {
-		if(zombies[j].dead){ 
-			ctx.drawImage(zombieDeadImg, zombies[j].x, zombies[j].y);
-		} else {
+		if(zombies[j].dead==false){ 
 			ctx.drawImage(zombieImg, zombies[j].x, zombies[j].y);
+		} else {
+			if(zombies[j].rot < 1500) {
+				ctx.drawImage(zombieDeadImg, zombies[j].x, zombies[j].y);
+				zombies[j].rot = zombies[j].rot + 1;
+			} else {
+				//Removing objects from array fucks up the loop. Not drawing the zombie fixes the immediate
+				//problem, but could result in the array getting too large.  We could just dump it between levels and call that good
+				//zombies.splice(j, 1)
+			}
 		}
 	}
 	
