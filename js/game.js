@@ -9,6 +9,7 @@ var bulletImg = new Image();
 var zombieImg = new Image();
 var blood = new Image();
 var zombieDeadImg = new Image();
+var gamePaused = false;
 
 map.src = 'img/map.png';
 blood.src = 'img/blood.png';
@@ -49,7 +50,7 @@ var zombieNum = 0;
 
 //Create zombie
 function createZombie() {
-	zombies[zombieNum] = new zombie(randomInt(300, 1000),randomInt(-50, 500),false, 0);
+	zombies[zombieNum] = new zombie(1100,randomInt(-50, 500),false, 0);
 	zombieNum++;
 }
 
@@ -77,6 +78,10 @@ function doGameLoop() {
     
 	for(var j = 0; j < zombies.length; j++) {
 		if(zombies[j].dead==false){ 
+			if(randomInt(1,100)==100 && zombies[j].x > 150) { //Roll 1d100 and move the zombie closer if a 1 is rolled AND the zombie isn't too close already.
+				zombies[j].x = zombies[j].x - 10;
+			} 
+			//In the future, if(zombies[j].x < 150, hero should die or take damage or whatever
 			ctx.drawImage(zombieImg, zombies[j].x, zombies[j].y);
 		} else {
 			if(zombies[j].rot < 1500) {
@@ -127,13 +132,18 @@ function whatKey(evt) {
     switch (evt.keyCode) {
 	//Escape key
 	case 27:
-		//This kills the loops, performing more of a "quit" than a pause. However, we could
-		//detect whether the game is paused and if so, call the setIntervals again.
-		clearInterval(gameLoop);
-		clearInterval(zombieLoop);
-		ctx.font = "30px Arial";
-		ctx.strokeStyle = 'red';
-		ctx.strokeText("Paused",500,300);
+		if(gamePaused==false) {
+			clearInterval(gameLoop);
+			clearInterval(zombieLoop);
+			ctx.font = "30px Arial";
+			ctx.strokeStyle = 'red';
+			ctx.strokeText("Paused",500,300);
+			gamePaused = true;
+		} else {
+			gameLoop = setInterval(doGameLoop, 1);
+			zombieLoop = setInterval(doZombieLoop, 2000);
+			gamePaused = false;
+		}
 	break;
 	
 	case 32:
