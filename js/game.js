@@ -26,11 +26,12 @@ function randomInt(min,max) {
 }
 
 //Zombie class
-function zombie(x,y,dead, rot) {
+function zombie(x,y,dead, rot, hp) {
 	this.x = x;
 	this.y = y;
 	this.dead = dead;
 	this.rot = rot; //rot is a timer to determine when to remove the zombie after it dies
+	this.hp = hp;
 }
 
 //Bullet class
@@ -50,7 +51,7 @@ var zombieNum = 0;
 
 //Create zombie
 function createZombie() {
-	zombies[zombieNum] = new zombie(1100,randomInt(-50, 500),false, 0);
+	zombies[zombieNum] = new zombie(1100,randomInt(-50, 500),false, 0, 100);
 	zombieNum++;
 }
 
@@ -108,8 +109,12 @@ function doGameLoop() {
 		for(j = 0; j < zombies.length; j++) {
 			if(bullets[i].x > zombies[j].x && bullets[i].y > zombies[j].y && bullets[i].y < zombies[j].y + 260 && bullets[i].exists && zombies[j].dead ==false) {
 			bullets[i].exists = false;
-			ctx.drawImage(blood, zombies[j].x  + 100, bullets[i].y); //this should probably exist for longer than 20ms
-			zombies[j].dead = true;
+			ctx.drawImage(blood, zombies[j].x  + 100, bullets[i].y); //this should probably exist for longer than 1ms
+			if(zombies[j].hp <= 0) {
+				zombies[j].dead = true;
+			} else {
+				zombies[j].hp = zombies[j].hp - randomInt(30, 35); //this damage should be a variable to account for different guns later
+			}
 			bullets.splice(i, 1);
 			bulletNum--;
 			//If you kill zombies out of order, this can cause new zombies to overwrite existing ones. Need good way to despawn zombies and prevent zombieNum from blowing up!
