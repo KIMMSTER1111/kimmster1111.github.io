@@ -6,7 +6,7 @@ var heroX = 30;
 var heroY = 200;
 var hero = new Image();
 var bulletImg = new Image();
-var zombieImg = new Image();
+var zombie1Img = new Image();
 var blood = new Image();
 var zombieDeadImg = new Image();
 var gamePaused = false;
@@ -20,7 +20,7 @@ map.src = 'img/map.png';
 blood.src = 'img/blood.png';
 hero.src = 'img/hero.png';
 bulletImg.src = 'img/bullet.png';
-zombieImg.src = 'img/zombie.png';
+zombie1Img.src = 'img/zombie1.png';
 zombieDeadImg.src = 'img/zombieDead.png';
 heartImg.src = 'img/heart.png';
 emptyHeartImg.src = 'img/emptyHeart.png';
@@ -60,7 +60,7 @@ var zombieNum = 0;
 
 //Create zombie
 function createZombie() {
-	zombies[zombieNum] = new zombie(1100,randomInt(-50, 500),false, 0, 100);
+	zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 100);
 	zombieNum++;
 }
 
@@ -91,12 +91,12 @@ function doGameLoop() {
 			if(randomInt(1,100)==100 && zombies[j].x > 150) { //Roll 1d100 and move the zombie closer if a 1 is rolled AND the zombie isn't too close already.
 				zombies[j].x = zombies[j].x - 10;
 			} 
-			if(zombies[j].x < heroX + 130 && zombies[j].y + 220 > heroY && zombies[j].y < heroY + 200 ) {
+			if(zombies[j].x < heroX + 130 && zombies[j].y + 195 > heroY && zombies[j].y < heroY + 200 ) {
 				//Hero takes damage. Screen should flash red or something
 				health--;
 				zombies[j].dead = true; //This prevents the damage from recurring every millisecond. Not logical though.
 			}
-			ctx.drawImage(zombieImg, zombies[j].x, zombies[j].y);
+			ctx.drawImage(zombie1Img, zombies[j].x, zombies[j].y);
 		} else {
 			if(zombies[j].rot < 1500) {
 				ctx.drawImage(zombieDeadImg, zombies[j].x, zombies[j].y);
@@ -120,9 +120,9 @@ function doGameLoop() {
 			}
 		}
 		for(j = 0; j < zombies.length; j++) {
-			if(bullets[i].x > zombies[j].x && bullets[i].y > zombies[j].y && bullets[i].y < zombies[j].y + 260 && bullets[i].exists && zombies[j].dead ==false) {
+			if(bullets[i].x > zombies[j].x && bullets[i].y > zombies[j].y && bullets[i].y < zombies[j].y + 180 && bullets[i].exists && zombies[j].dead ==false) {
 			bullets[i].exists = false;
-			ctx.drawImage(blood, zombies[j].x  + 100, bullets[i].y); //this should probably exist for longer than 1ms
+			ctx.drawImage(blood, zombies[j].x  + 10, bullets[i].y); //this should probably exist for longer than 1ms
 			if(zombies[j].hp <= 0) {
 				zombies[j].dead = true;
 			} else {
@@ -208,9 +208,9 @@ function whatKey(evt) {
 	// Right arrow.
 	case 39:
 		heroX = heroX + 30;
-		if (heroX > 420) {
+		if (heroX > 320) {
 			// If at edge, reset position.
-			heroX = 420;
+			heroX = 320;
 		}
 		break;
 
