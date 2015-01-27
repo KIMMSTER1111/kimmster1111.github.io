@@ -13,6 +13,8 @@ var gamePaused = false;
 var health = 3;
 var heartImg = new Image();
 var emptyHeartImg = new Image();
+var grayImg = new Image();
+var deathBloodImg = new Image();
 
 map.src = 'img/map.png';
 blood.src = 'img/blood.png';
@@ -22,6 +24,8 @@ zombieImg.src = 'img/zombie.png';
 zombieDeadImg.src = 'img/zombieDead.png';
 heartImg.src = 'img/heart.png';
 emptyHeartImg.src = 'img/emptyHeart.png';
+grayImg.src = 'img/gray.png';
+deathBloodImg.src = 'img/deathBlood.png';
 
 
 
@@ -87,12 +91,11 @@ function doGameLoop() {
 			if(randomInt(1,100)==100 && zombies[j].x > 150) { //Roll 1d100 and move the zombie closer if a 1 is rolled AND the zombie isn't too close already.
 				zombies[j].x = zombies[j].x - 10;
 			} 
-			if(zombies[j].x < heroX + 200 && zombies[j].y + 220 > heroY && zombies[j].y < heroY + 200 ) {
+			if(zombies[j].x < heroX + 130 && zombies[j].y + 220 > heroY && zombies[j].y < heroY + 200 ) {
 				//Hero takes damage. Screen should flash red or something
 				health--;
 				zombies[j].dead = true; //This prevents the damage from recurring every millisecond. Not logical though.
 			}
-			//In the future, if(zombies[j].x < 150, hero should die or take damage or whatever
 			ctx.drawImage(zombieImg, zombies[j].x, zombies[j].y);
 		} else {
 			if(zombies[j].rot < 1500) {
@@ -152,7 +155,9 @@ function doGameLoop() {
 	case 0:
 		clearInterval(gameLoop);
 		clearInterval(zombieLoop);
-		ctx.font = "30px Arial";
+		ctx.drawImage(grayImg,0,0);
+		ctx.drawImage(deathBloodImg,0,0);
+		ctx.font = "50px Arial";
 		ctx.strokeStyle = 'red';
 		ctx.strokeText("You died.",500,300);
 		break;
@@ -175,7 +180,8 @@ function whatKey(evt) {
 		if(gamePaused==false) {
 			clearInterval(gameLoop);
 			clearInterval(zombieLoop);
-			ctx.font = "30px Arial";
+			ctx.drawImage(grayImg,0,0);
+			ctx.font = "50px Arial";
 			ctx.strokeStyle = 'red';
 			ctx.strokeText("Paused",500,300);
 			gamePaused = true;
