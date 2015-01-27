@@ -15,6 +15,9 @@ var heartImg = new Image();
 var emptyHeartImg = new Image();
 var grayImg = new Image();
 var deathBloodImg = new Image();
+var moneyBackImg = new Image();
+var action = "semi"; //This refers to gun action and keeps track of whether holding down spacebar should keep firing.
+var money = 0;
 
 map.src = 'img/map.png';
 blood.src = 'img/blood.png';
@@ -26,6 +29,7 @@ heartImg.src = 'img/heart.png';
 emptyHeartImg.src = 'img/emptyHeart.png';
 grayImg.src = 'img/gray.png';
 deathBloodImg.src = 'img/deathBlood.png';
+moneyBackImg.src = 'img/moneyBack.png';
 
 
 
@@ -75,7 +79,8 @@ function init() {
 	zombieLoop = setInterval(doZombieLoop, 2000);
 	//clearInterval() will stop setInterval
 	
-	window.addEventListener('keydown', whatKey, true);
+	window.addEventListener('keydown', whatKeyDown, true);
+	window.addEventListener('keyup', whatKeyUp, true);
 }
 
 
@@ -112,7 +117,7 @@ function doGameLoop() {
 	for(var i = 0; i < bullets.length; i++) {
 		if(bullets[i].exists) { 
 			ctx.drawImage(bulletImg, bullets[i].x, bullets[i].y);
-			bullets[i].x += 30;  //This should maybe be a variable to allow for a variety of bullet speeds
+			bullets[i].x += 10;  //This should maybe be a variable to allow for a variety of bullet speeds
 			if(bullets[i].x > 1100) {
 				bullets[i].exists = false;
 				bullets.splice(i, 1);
@@ -125,6 +130,9 @@ function doGameLoop() {
 			ctx.drawImage(blood, zombies[j].x  + 10, bullets[i].y); //this should probably exist for longer than 1ms
 			if(zombies[j].hp <= 0) {
 				zombies[j].dead = true;
+				if(randomInt(1,6)>3) { //roll 1d6 and get money on 4, 5, or 6
+					money = money + randomInt(1,10);
+				}
 			} else {
 				zombies[j].hp = zombies[j].hp - randomInt(30, 35); //this damage should be a variable to account for different guns later
 			}
@@ -158,10 +166,18 @@ function doGameLoop() {
 		ctx.drawImage(grayImg,0,0);
 		ctx.drawImage(deathBloodImg,0,0);
 		ctx.font = "50px Arial";
+		ctx.textAlign="start"; 
 		ctx.strokeStyle = 'red';
 		ctx.strokeText("You died.",500,300);
 		break;
 	}
+	
+	ctx.drawImage(moneyBackImg, 30, 15);
+	ctx.font = "20px Arial";
+	ctx.fillStyle = 'green';
+	ctx.textAlign="end"; 
+	ctx.fillText("$", 50, 40);
+	ctx.fillText(money, 120, 40);
 }
 
 //Zombie generating loop
@@ -169,20 +185,28 @@ function doZombieLoop() {
 	createZombie();
 }
 
-
-
+function whatKeyUp(evt) {
+	switch (evt.keyCode) {
+	case 32: //spacebar
+		if(action != "full") { //If not full auto, use keyup to disallow holding spacebar to keep firing.
+			fireBullet();
+			}
+		break;
+	}
+}
 // Get key presses
-function whatKey(evt) {
+function whatKeyDown(evt) {
 
     switch (evt.keyCode) {
-	//Escape key
-	case 27:
+	
+	case 27: //Escape key
 		if(gamePaused==false) {
 			clearInterval(gameLoop);
 			clearInterval(zombieLoop);
 			ctx.drawImage(grayImg,0,0);
 			ctx.font = "50px Arial";
 			ctx.strokeStyle = 'red';
+			ctx.textAlign="start"; 
 			ctx.strokeText("Paused",500,300);
 			gamePaused = true;
 		} else {
@@ -192,8 +216,10 @@ function whatKey(evt) {
 		}
 	break;
 	
-	case 32:
-		fireBullet();
+	case 32: //Spacebar
+		if(action == "full") { //If full auto, use keydown to allow holding spacebar to keep firing.
+			fireBullet();
+			}
 	break;
 
 	// Left arrow.
