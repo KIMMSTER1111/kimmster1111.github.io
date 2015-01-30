@@ -55,6 +55,7 @@ var sounds = true;
 var soundOn = new Image();
 var soundOff = new Image();
 var zombie2Img = new Image();
+var zombieCatImg = new Image();
 
 map.src = 'img/map.png';
 blood.src = 'img/blood.png';
@@ -78,7 +79,7 @@ hintsOff.src = 'img/hintsOff.png';
 soundOn.src = 'img/soundOn.png';
 soundOff.src = 'img/soundOff.png';
 zombie2Img.src = 'img/zombie2.png';
-
+zombieCatImg.src = 'img/zombieCat.png';
 
 
 //Generates a random number between a min and max
@@ -99,7 +100,7 @@ function gun(name, ammo,maxAmmo, damage, action, purchased, active, reloadSpeed)
 }
 
 //Zombie class
-function zombie(x,y,dead, rot, hp, speed, type) {
+function zombie(x,y,dead, rot, hp, speed, type, height) {
 	this.type = type;
 	this.x = x;
 	this.y = y;
@@ -107,6 +108,8 @@ function zombie(x,y,dead, rot, hp, speed, type) {
 	this.rot = rot; //rot is a timer to determine when to remove the zombie after it dies
 	this.hp = hp;
 	this.speed = speed;
+	this.type = type;
+	this.height = height;
 }
 
 //Bullet class
@@ -127,13 +130,17 @@ var zombieNum = 0;
 
 //Create zombie
 function createZombie() {
-	if(randomInt(1,4)>1) {
-		zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 90, 25, 1);
+	var zombieRoll = randomInt(1,4);
+	if(zombieRoll>2) {
+		zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 90, 25, 1, 180);
 		zombieNum++;
-	} else{
-		zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 180, 15, 2);
+	} else if (zombieRoll == 2) {
+		zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 180, 15, 2, 190);
 		zombieNum++;
-	}
+	} else {
+		zombies[zombieNum] = new zombie(1100,randomInt(50, 400),false, 0, 20, 55, 3, 100);
+		zombieNum++;
+}
 }
 
 //Initial function to set shit up
@@ -205,7 +212,7 @@ function doGameLoop() {
 			if(randomInt(1,100)>98 && zombies[j].x > 50) { //Roll 1d100 and move the zombie closer if a 99 or 100 is rolled AND the zombie isn't too close already.
 				zombies[j].x = zombies[j].x - zombies[j].speed;
 			} 
-			if(zombies[j].x < heroX + 130 && zombies[j].y + 195 > heroY && zombies[j].y < heroY + 200 && kickCounter == 0) {
+			if(zombies[j].x < heroX + 130 && zombies[j].y + zombies[j].height > heroY && zombies[j].y < heroY + 200 && kickCounter == 0) {
 				health--;
 				zombies[j].dead = true; //This prevents the damage from recurring every millisecond. Not logical though.
 				if(sounds) {
@@ -217,7 +224,7 @@ function doGameLoop() {
 				} else {
 					flashCounter = 0;
 				}
-			} else if (zombies[j].x < heroX + 250 && zombies[j].y + 200 > heroY && zombies[j].y < heroY + 200 && kickCounter > 0) {
+			} else if (zombies[j].x < heroX + 250 && zombies[j].y + zombies[j].height + 50 > heroY && zombies[j].y < heroY + 200 && kickCounter > 0) {
 				zombies[j].dead = true;
 				money = money + randomInt(1,10);
 			}
@@ -241,10 +248,10 @@ function doGameLoop() {
 			} else if(zombies[j].type ==2) {
 				ctx.drawImage(zombie2Img, zombies[j].x, zombies[j].y);
 			} else {
-				alert("zombie type not identified");
+				ctx.drawImage(zombieCatImg, zombies[j].x, zombies[j].y);
 			}
 		} else {
-			if(zombies[j].rot < 1500) {
+			if(zombies[j].rot < 1000) {
 				ctx.drawImage(zombieDeadImg, zombies[j].x, zombies[j].y);
 				zombies[j].rot = zombies[j].rot + 1;
 			} else {
@@ -258,7 +265,7 @@ function doGameLoop() {
 	for(var i = 0; i < bullets.length; i++) {
 		if(bullets[i].exists) { 
 			ctx.drawImage(bulletImg, bullets[i].x, bullets[i].y);
-			bullets[i].x += 10;  //This should maybe be a variable to allow for a variety of bullet speeds
+			bullets[i].x += 15;  //This should maybe be a variable to allow for a variety of bullet speeds
 			if(bullets[i].x > 1100) {
 				bullets[i].exists = false;
 				bullets.splice(i, 1);
@@ -266,20 +273,25 @@ function doGameLoop() {
 			}
 		}
 		for(j = 0; j < zombies.length; j++) {
-			if(bullets[i].x > zombies[j].x && bullets[i].y > zombies[j].y && bullets[i].y < zombies[j].y + 180 && bullets[i].exists && zombies[j].dead ==false) {
+			if(bullets[i].x > zombies[j].x && bullets[i].y > zombies[j].y && bullets[i].y < zombies[j].y + zombies[j].height && bullets[i].exists && zombies[j].dead ==false) {
 			bullets[i].exists = false;
-			ctx.drawImage(blood, zombies[j].x  + 10, bullets[i].y); //this should probably exist for longer than 1ms
+			ctx.drawImage(blood, zombies[j].x  + 50, bullets[i].y); //this should probably exist for longer than 1ms
 			if(zombies[j].hp <= 0) {
 				zombies[j].dead = true;
 				if(sounds) {
-					document.getElementById("kill").currentTime = 0;
-					document.getElementById("kill").play();
+					if(zombies[j].type != 3) {
+						document.getElementById("kill").currentTime = 0;
+						document.getElementById("kill").play();
+					} else {
+						document.getElementById("catKill").currentTime = 0;
+						document.getElementById("catKill").play();
+					}
 				}
 				if(randomInt(1,6)>3) { //roll 1d6 and get money on 4, 5, or 6
 					money = money + randomInt(1,10);
 				}
 			} else {
-				zombies[j].hp = zombies[j].hp - randomInt(guns[activeGun].damage-10, guns[activeGun].damage+10); //this damage should be a variable to account for different guns later
+				zombies[j].hp = zombies[j].hp - randomInt(guns[activeGun].damage-8, guns[activeGun].damage+8); //this damage should be a variable to account for different guns later
 			}
 			bullets.splice(i, 1);
 			bulletNum--;
