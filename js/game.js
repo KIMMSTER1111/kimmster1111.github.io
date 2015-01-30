@@ -51,6 +51,9 @@ var flashCounter = 0; //keep track of how long to display damage flash
 var flashImg = new Image();
 var hintsOn = new Image();
 var hintsOff = new Image();
+var sounds = true;
+var soundOn = new Image();
+var soundOff = new Image();
 
 map.src = 'img/map.png';
 blood.src = 'img/blood.png';
@@ -71,6 +74,8 @@ kickCDIcon.src = 'img/kickIconCD.png';
 flashImg.src = 'img/flash.png';
 hintsOn.src = 'img/hintsOn.png';
 hintsOff.src = 'img/hintsOff.png';
+soundOn.src = 'img/soundOn.png';
+soundOff.src = 'img/soundOff.png';
 
 
 
@@ -131,7 +136,7 @@ function init() {
 	createZombie();
 	guns[activeGun] = new gun("SKS",10,10, 30, "semi", true, true, 750);
 	
-	gameLoop = setInterval(doGameLoop, 1);
+	gameLoop = setInterval(doGameLoop, 2);
 	zombieLoop = setInterval(doZombieLoop, 3500);
 	//clearInterval() will stop setInterval
 	
@@ -152,6 +157,15 @@ function init() {
 			hints = true;
 		}
 	}
+	if(x>1061 && x < 1100 && y > 40 && y < 68) {
+		if(sounds) {
+			sounds = false;
+			document.getElementById("music").pause();
+		} else {
+			sounds = true;
+			document.getElementById("music").play();
+		}
+	}
 	
  });
 
@@ -166,10 +180,14 @@ function doGameLoop() {
 	ctx.drawImage(map, 0,0);
     
     if(guns[activeGun].ammo==0 && reloadCounter < guns[activeGun].reloadSpeed) {
-		reloadCounter++;
+		reloadCounter = reloadCounter+2;
 		ctx.font = '20px Arial';
 		ctx.strokeStyle = 'white';
 		ctx.strokeText("reloading...", 420,550);
+		if(sounds && reloadCounter ==2) {
+			document.getElementById("reload").currentTime = 0;
+			document.getElementById("reload").play();
+		}
 	} else if (guns[activeGun].ammo==0 && reloadCounter >= guns[activeGun].reloadSpeed) {
 		guns[activeGun].ammo = guns[activeGun].maxAmmo;
 		reloadCounter = 0;
@@ -182,6 +200,10 @@ function doGameLoop() {
 			if(zombies[j].x < heroX + 130 && zombies[j].y + 195 > heroY && zombies[j].y < heroY + 200 && kickCounter == 0) {
 				health--;
 				zombies[j].dead = true; //This prevents the damage from recurring every millisecond. Not logical though.
+				if(sounds) {
+					document.getElementById("hit").currentTime = 0;
+					document.getElementById("hit").play();
+				}
 				if(health>0) {
 					flashCounter = 50;
 				} else {
@@ -196,6 +218,10 @@ function doGameLoop() {
 				//zombie reached left side of screen
 				health--;
 				zombies[j].dead = true;
+				if(sounds) {
+					document.getElementById("hit").currentTime = 0;
+					document.getElementById("hit").play();
+				}
 				if(health>0) {
 					flashCounter = 50;
 				} else {
@@ -231,6 +257,10 @@ function doGameLoop() {
 			ctx.drawImage(blood, zombies[j].x  + 10, bullets[i].y); //this should probably exist for longer than 1ms
 			if(zombies[j].hp <= 0) {
 				zombies[j].dead = true;
+				if(sounds) {
+					document.getElementById("kill").currentTime = 0;
+					document.getElementById("kill").play();
+				}
 				if(randomInt(1,6)>3) { //roll 1d6 and get money on 4, 5, or 6
 					money = money + randomInt(1,10);
 				}
@@ -251,14 +281,14 @@ function doGameLoop() {
 		ctx.drawImage(kickCDIcon, 900, 540);
 		ctx.font = "10px Arial";
 		ctx.strokeStyle = 'white';
-		ctx.strokeText(((kickCD/10000)*10).toFixed(2),947,535);
+		ctx.strokeText(((kickCD/1000)*10).toFixed(2),947,535);
 		kickCD--;
 	} else if (kickCounter > 1) { //currently kicking
 		ctx.drawImage(kickImg, heroX, heroY);
 		kickCounter--;
 	} else if(kickCounter == 1) { //end kick
 		ctx.drawImage(kickImg,heroX,heroY);
-		kickCD = 10000;
+		kickCD = 2000;
 		kickCounter--;
 	} else { //normal, kick available
 		ctx.drawImage(hero, heroX, heroY);
@@ -329,13 +359,20 @@ function doGameLoop() {
 		ctx.drawImage(hintsOn, 1060, -5);
 		ctx.font = '10px arial';
 		ctx.strokeStyle = 'white';
-		ctx.strokeText("click to turn hints off", 1060, 30);
+		ctx.strokeText("click to turn hints off", 1060, 20);
 		ctx.strokeText("use spacebar to shoot", 550, 20);
 		ctx.strokeText("press Esc to pause", 250, 20);
+		ctx.strokeText("click to toggle sound", 1060, 60);
 	} else {
 		ctx.drawImage(hintsOff, 1060, -5);
 	}
 	
+	if(sounds) {
+		ctx.drawImage(soundOn, 1060, 35);
+		
+	} else {
+		ctx.drawImage(soundOff, 1060, 35);
+	}
 	
 	if(flashCounter > 0) {
 		ctx.drawImage(flashImg,0,0);
@@ -364,7 +401,11 @@ function whatKeyUp(evt) {
 	
 	case 75: //k
 		if(kickCD==0) {
-		kickCounter = 150;
+			kickCounter = 150;
+			if(sounds) {
+				document.getElementById("kick").currentTime = 0;
+				document.getElementById("kick").play();
+			}
 		}
 		break;
 	}
@@ -441,5 +482,10 @@ function fireBullet() {
 		bullets[bulletNum] = new bullet(heroX + 172, heroY + 65, true); 
 		bulletNum++;
 		guns[activeGun].ammo--;
+		if(sounds) {
+			var sound = document.getElementById("bulletFire");
+			sound.currentTime = 0;
+			sound.play();
+		}
 	}
 }

@@ -94,3 +94,6 @@ canvas#map {
 	color: #880000;
 	text-decoration:underline;
 	}
+#audio {
+float: left;
+}

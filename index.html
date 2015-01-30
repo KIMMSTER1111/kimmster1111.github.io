@@ -25,10 +25,30 @@
 
 </head>
 <body onload="init()">
+<div id="audio">
+	<audio id="music" loop autoplay>
+		<source src="audio/funky.mp3" type="audio/mpeg">
+	</audio>
+	<audio id="bulletFire">
+		<source src="audio/bulletFire.mp3" type="audio/mpeg">
+	</audio>
+	<audio id="reload">
+		<source src="audio/reload.mp3" type="audio/mpeg">
+	</audio>
+	<audio id="kick">
+		<source src="audio/kick.mp3" type="audio/mpeg">
+	</audio>
+	<audio id="hit">
+		<source src="audio/hit.mp3" type="audio/mpeg">
+	</audio>
+	<audio id="kill">
+		<source src="audio/kill.mp3" type="audio/mpeg">
+	</audio>
+</div>	
 <div id="container">
 	<canvas id="map" width="1100" height="600"></canvas>
 </div> <!-- #container -->
-<h2>Use the arrow keys to move, spacebar to shoot, and escape to pause.</h2>
+
 <div id="footer">
 	Copyright (C) 2015 Zack Reithmeyer.	This work is licensed under the <a href="http://www.gnu.org/licenses/gpl-3.0.txt">GPL v3</a>.
 </div>
