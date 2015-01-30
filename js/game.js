@@ -54,6 +54,7 @@ var hintsOff = new Image();
 var sounds = true;
 var soundOn = new Image();
 var soundOff = new Image();
+var zombie2Img = new Image();
 
 map.src = 'img/map.png';
 blood.src = 'img/blood.png';
@@ -76,6 +77,7 @@ hintsOn.src = 'img/hintsOn.png';
 hintsOff.src = 'img/hintsOff.png';
 soundOn.src = 'img/soundOn.png';
 soundOff.src = 'img/soundOff.png';
+zombie2Img.src = 'img/zombie2.png';
 
 
 
@@ -97,7 +99,8 @@ function gun(name, ammo,maxAmmo, damage, action, purchased, active, reloadSpeed)
 }
 
 //Zombie class
-function zombie(x,y,dead, rot, hp, speed) {
+function zombie(x,y,dead, rot, hp, speed, type) {
+	this.type = type;
 	this.x = x;
 	this.y = y;
 	this.dead = dead;
@@ -124,8 +127,13 @@ var zombieNum = 0;
 
 //Create zombie
 function createZombie() {
-	zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 100, 20);
-	zombieNum++;
+	if(randomInt(1,4)>1) {
+		zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 90, 25, 1);
+		zombieNum++;
+	} else{
+		zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 180, 15, 2);
+		zombieNum++;
+	}
 }
 
 //Initial function to set shit up
@@ -134,9 +142,9 @@ function init() {
 	ctx.drawImage(hero, 30,200);
 		
 	createZombie();
-	guns[activeGun] = new gun("SKS",10,10, 30, "semi", true, true, 750);
+	guns[activeGun] = new gun("SKS",10,10, 30, "semi", true, true, 650);
 	
-	gameLoop = setInterval(doGameLoop, 2);
+	gameLoop = setInterval(doGameLoop, 1);
 	zombieLoop = setInterval(doZombieLoop, 3500);
 	//clearInterval() will stop setInterval
 	
@@ -194,7 +202,7 @@ function doGameLoop() {
 	}
 	for(var j = 0; j < zombies.length; j++) {
 		if(zombies[j].dead==false){ 
-			if(randomInt(1,100)==100 && zombies[j].x > 50) { //Roll 1d100 and move the zombie closer if a 1 is rolled AND the zombie isn't too close already.
+			if(randomInt(1,100)>98 && zombies[j].x > 50) { //Roll 1d100 and move the zombie closer if a 99 or 100 is rolled AND the zombie isn't too close already.
 				zombies[j].x = zombies[j].x - zombies[j].speed;
 			} 
 			if(zombies[j].x < heroX + 130 && zombies[j].y + 195 > heroY && zombies[j].y < heroY + 200 && kickCounter == 0) {
@@ -228,7 +236,13 @@ function doGameLoop() {
 					flashCounter = 0;
 				}
 			}
-			ctx.drawImage(zombie1Img, zombies[j].x, zombies[j].y);
+			if(zombies[j].type ==1) {	
+				ctx.drawImage(zombie1Img, zombies[j].x, zombies[j].y);
+			} else if(zombies[j].type ==2) {
+				ctx.drawImage(zombie2Img, zombies[j].x, zombies[j].y);
+			} else {
+				alert("zombie type not identified");
+			}
 		} else {
 			if(zombies[j].rot < 1500) {
 				ctx.drawImage(zombieDeadImg, zombies[j].x, zombies[j].y);
@@ -318,35 +332,7 @@ function doGameLoop() {
 		ctx.strokeText("press r to reload", 420, 550);
 	}
 	
-	switch(health) { //switch is probably not ideal, but it's functional for now. A loop would probably be better
-	case 1:
-		ctx.drawImage(heartImg, 50, 550);
-		ctx.drawImage(emptyHeartImg, 80, 550);
-		ctx.drawImage(emptyHeartImg, 110, 550);
-		break;
-	case 2:
-		ctx.drawImage(heartImg, 50, 550);
-		ctx.drawImage(heartImg, 80, 550);
-		ctx.drawImage(emptyHeartImg, 110, 550);
-		break;
-	case 3:
-		ctx.drawImage(heartImg, 50, 550);
-		ctx.drawImage(heartImg, 80, 550);
-		ctx.drawImage(heartImg, 110, 550);
-		break;
-	default:
-	case 0:
-		flashCounter = 0;
-		clearInterval(gameLoop);
-		clearInterval(zombieLoop);
-		ctx.drawImage(grayImg,0,0);
-		ctx.drawImage(deathBloodImg,0,0);
-		ctx.font = "50px Arial";
-		ctx.textAlign="center"; 
-		ctx.strokeStyle = 'red';
-		ctx.strokeText("You died.",550,300);
-		break;
-	}
+
 	
 	ctx.drawImage(moneyBackImg, 30, 15);
 	ctx.font = "20px Arial";
@@ -378,6 +364,40 @@ function doGameLoop() {
 		ctx.drawImage(flashImg,0,0);
 		flashCounter--;
 	}
+	
+	
+		switch(health) { //switch is probably not ideal, but it's functional for now. A loop would probably be better
+	case 1:
+		ctx.drawImage(heartImg, 50, 550);
+		ctx.drawImage(emptyHeartImg, 80, 550);
+		ctx.drawImage(emptyHeartImg, 110, 550);
+		break;
+	case 2:
+		ctx.drawImage(heartImg, 50, 550);
+		ctx.drawImage(heartImg, 80, 550);
+		ctx.drawImage(emptyHeartImg, 110, 550);
+		break;
+	case 3:
+		ctx.drawImage(heartImg, 50, 550);
+		ctx.drawImage(heartImg, 80, 550);
+		ctx.drawImage(heartImg, 110, 550);
+		break;
+	default:
+	case 0:
+		flashCounter = 0;
+		clearInterval(gameLoop);
+		clearInterval(zombieLoop);
+		ctx.drawImage(grayImg,0,0);
+		ctx.drawImage(deathBloodImg,0,0);
+		ctx.font = "50px Arial";
+		ctx.textAlign="center"; 
+		ctx.strokeStyle = 'red';
+		ctx.strokeText("You died.",550,300);
+		if(sounds) {
+			document.getElementById("death").play();
+		}
+		break;
+	}
 
 }
 
@@ -401,7 +421,7 @@ function whatKeyUp(evt) {
 	
 	case 75: //k
 		if(kickCD==0) {
-			kickCounter = 150;
+			kickCounter = 75;
 			if(sounds) {
 				document.getElementById("kick").currentTime = 0;
 				document.getElementById("kick").play();
