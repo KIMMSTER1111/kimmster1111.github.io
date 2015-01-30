@@ -37,6 +37,20 @@ var deathBloodImg = new Image();
 var moneyBackImg = new Image();
 var action = "semi"; //This refers to gun action and keeps track of whether holding down spacebar should keep firing.
 var money = 0;
+var activeGun = 0;
+var cartImg = new Image();
+var emptyCartImg = new Image();
+var reloadCounter = 0;
+var kickCounter = 0;
+var kickCD = 0;
+var kickImg = new Image();
+var kickIcon = new Image();
+var kickCDIcon = new Image();
+var hints = true; //tooltips, etc for newbies
+var flashCounter = 0; //keep track of how long to display damage flash
+var flashImg = new Image();
+var hintsOn = new Image();
+var hintsOff = new Image();
 
 map.src = 'img/map.png';
 blood.src = 'img/blood.png';
@@ -49,6 +63,14 @@ emptyHeartImg.src = 'img/emptyHeart.png';
 grayImg.src = 'img/gray.png';
 deathBloodImg.src = 'img/deathBlood.png';
 moneyBackImg.src = 'img/moneyBack.png';
+cartImg.src = 'img/cartridge.png';
+emptyCartImg.src = 'img/empty.png';
+kickImg.src = 'img/heroKick.png';
+kickIcon.src = 'img/kickIcon.png';
+kickCDIcon.src = 'img/kickIconCD.png';
+flashImg.src = 'img/flash.png';
+hintsOn.src = 'img/hintsOn.png';
+hintsOff.src = 'img/hintsOff.png';
 
 
 
@@ -57,13 +79,26 @@ function randomInt(min,max) {
 	return Math.floor(Math.random()*(max-min+1)+min);
 }
 
+//Gun class
+function gun(name, ammo,maxAmmo, damage, action, purchased, active, reloadSpeed) {
+	this.name = name; //string
+	this.ammo = ammo; //int
+	this.maxAmmo = maxAmmo; //int
+	this.damage = damage; //int
+	this.action = action; //string
+	this.purchased = purchased; //boolean
+	this.active = active; //boolean
+	this.reloadSpeed = reloadSpeed; //int
+}
+
 //Zombie class
-function zombie(x,y,dead, rot, hp) {
+function zombie(x,y,dead, rot, hp, speed) {
 	this.x = x;
 	this.y = y;
 	this.dead = dead;
 	this.rot = rot; //rot is a timer to determine when to remove the zombie after it dies
 	this.hp = hp;
+	this.speed = speed;
 }
 
 //Bullet class
@@ -73,7 +108,8 @@ function bullet(x,y,exists) {
 	this.exists = exists;
 }
 
-//Create arrays to hold zombies and bullets
+//Create arrays to hold zombies and bullets and guns
+var guns = [];
 var bullets = [];
 var zombies = [];
 
@@ -83,7 +119,7 @@ var zombieNum = 0;
 
 //Create zombie
 function createZombie() {
-	zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 100);
+	zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 100, 20);
 	zombieNum++;
 }
 
@@ -93,13 +129,34 @@ function init() {
 	ctx.drawImage(hero, 30,200);
 		
 	createZombie();
+	guns[activeGun] = new gun("SKS",10,10, 30, "semi", true, true, 750);
 	
 	gameLoop = setInterval(doGameLoop, 1);
-	zombieLoop = setInterval(doZombieLoop, 2000);
+	zombieLoop = setInterval(doZombieLoop, 3500);
 	//clearInterval() will stop setInterval
 	
 	window.addEventListener('keydown', whatKeyDown, true);
 	window.addEventListener('keyup', whatKeyUp, true);
+	
+	$("#map").click(function(e){
+
+    var x = Math.floor((e.pageX-$("#map").offset().left));
+    var y = Math.floor((e.pageY-$("#map").offset().top));
+	
+	console.log(x,y);
+	
+	if(x>1060 && x < 1100 && y >0 && y < 30) {
+		if(hints) {
+			hints = false;
+		} else {
+			hints = true;
+		}
+	}
+	
+ });
+
+
+	
 }
 
 
@@ -107,18 +164,43 @@ function init() {
 //Main loop to listen for keypresses and check for collisions, etc
 function doGameLoop() {
 	ctx.drawImage(map, 0,0);
-    ctx.drawImage(hero, heroX, heroY);
     
-    
+    if(guns[activeGun].ammo==0 && reloadCounter < guns[activeGun].reloadSpeed) {
+		reloadCounter++;
+		ctx.font = '20px Arial';
+		ctx.strokeStyle = 'white';
+		ctx.strokeText("reloading...", 420,550);
+	} else if (guns[activeGun].ammo==0 && reloadCounter >= guns[activeGun].reloadSpeed) {
+		guns[activeGun].ammo = guns[activeGun].maxAmmo;
+		reloadCounter = 0;
+	}
 	for(var j = 0; j < zombies.length; j++) {
 		if(zombies[j].dead==false){ 
-			if(randomInt(1,100)==100 && zombies[j].x > 150) { //Roll 1d100 and move the zombie closer if a 1 is rolled AND the zombie isn't too close already.
-				zombies[j].x = zombies[j].x - 10;
+			if(randomInt(1,100)==100 && zombies[j].x > 50) { //Roll 1d100 and move the zombie closer if a 1 is rolled AND the zombie isn't too close already.
+				zombies[j].x = zombies[j].x - zombies[j].speed;
 			} 
-			if(zombies[j].x < heroX + 130 && zombies[j].y + 195 > heroY && zombies[j].y < heroY + 200 ) {
-				//Hero takes damage. Screen should flash red or something
+			if(zombies[j].x < heroX + 130 && zombies[j].y + 195 > heroY && zombies[j].y < heroY + 200 && kickCounter == 0) {
 				health--;
 				zombies[j].dead = true; //This prevents the damage from recurring every millisecond. Not logical though.
+				if(health>0) {
+					flashCounter = 50;
+				} else {
+					flashCounter = 0;
+				}
+			} else if (zombies[j].x < heroX + 250 && zombies[j].y + 200 > heroY && zombies[j].y < heroY + 200 && kickCounter > 0) {
+				zombies[j].dead = true;
+				money = money + randomInt(1,10);
+			}
+				
+			if(zombies[j].x <= 50) {
+				//zombie reached left side of screen
+				health--;
+				zombies[j].dead = true;
+				if(health>0) {
+					flashCounter = 50;
+				} else {
+					flashCounter = 0;
+				}
 			}
 			ctx.drawImage(zombie1Img, zombies[j].x, zombies[j].y);
 		} else {
@@ -153,7 +235,7 @@ function doGameLoop() {
 					money = money + randomInt(1,10);
 				}
 			} else {
-				zombies[j].hp = zombies[j].hp - randomInt(30, 35); //this damage should be a variable to account for different guns later
+				zombies[j].hp = zombies[j].hp - randomInt(guns[activeGun].damage-10, guns[activeGun].damage+10); //this damage should be a variable to account for different guns later
 			}
 			bullets.splice(i, 1);
 			bulletNum--;
@@ -162,6 +244,49 @@ function doGameLoop() {
 			}
 		}
     }
+	
+	
+	if(kickCD > 0) { //kick is on cool
+		ctx.drawImage(hero, heroX, heroY);
+		ctx.drawImage(kickCDIcon, 900, 540);
+		ctx.font = "10px Arial";
+		ctx.strokeStyle = 'white';
+		ctx.strokeText(((kickCD/10000)*10).toFixed(2),947,535);
+		kickCD--;
+	} else if (kickCounter > 1) { //currently kicking
+		ctx.drawImage(kickImg, heroX, heroY);
+		kickCounter--;
+	} else if(kickCounter == 1) { //end kick
+		ctx.drawImage(kickImg,heroX,heroY);
+		kickCD = 10000;
+		kickCounter--;
+	} else { //normal, kick available
+		ctx.drawImage(hero, heroX, heroY);
+		ctx.drawImage(kickIcon, 900, 540);
+		if(hints) {
+			ctx.font = "12px Arial";
+			ctx.strokeStyle = 'black';
+			ctx.strokeText("press k to kick", 970, 540);
+		}
+	}
+		
+		
+	
+	var ammoCounter = 0;
+	for (i = 0; i < guns[activeGun].maxAmmo; i++) {
+		if(ammoCounter < guns[activeGun].ammo) {
+			ctx.drawImage(cartImg, 300+(ammoCounter*18), 550);
+			ammoCounter++;
+		} else {
+			ctx.drawImage(emptyCartImg,300+(ammoCounter*18), 550);
+			ammoCounter++;
+		}
+	}
+	if(guns[activeGun].ammo < guns[activeGun].maxAmmo && guns[activeGun].ammo > 0 && hints) {
+		ctx.font = "12px Arial";
+		ctx.strokeStyle = 'black';
+		ctx.strokeText("press r to reload", 420, 550);
+	}
 	
 	switch(health) { //switch is probably not ideal, but it's functional for now. A loop would probably be better
 	case 1:
@@ -179,15 +304,17 @@ function doGameLoop() {
 		ctx.drawImage(heartImg, 80, 550);
 		ctx.drawImage(heartImg, 110, 550);
 		break;
+	default:
 	case 0:
+		flashCounter = 0;
 		clearInterval(gameLoop);
 		clearInterval(zombieLoop);
 		ctx.drawImage(grayImg,0,0);
 		ctx.drawImage(deathBloodImg,0,0);
 		ctx.font = "50px Arial";
-		ctx.textAlign="start"; 
+		ctx.textAlign="center"; 
 		ctx.strokeStyle = 'red';
-		ctx.strokeText("You died.",500,300);
+		ctx.strokeText("You died.",550,300);
 		break;
 	}
 	
@@ -197,6 +324,24 @@ function doGameLoop() {
 	ctx.textAlign="end"; 
 	ctx.fillText("$", 50, 40);
 	ctx.fillText(money, 120, 40);
+	
+	if(hints) {
+		ctx.drawImage(hintsOn, 1060, -5);
+		ctx.font = '10px arial';
+		ctx.strokeStyle = 'white';
+		ctx.strokeText("click to turn hints off", 1060, 30);
+		ctx.strokeText("use spacebar to shoot", 550, 20);
+		ctx.strokeText("press Esc to pause", 250, 20);
+	} else {
+		ctx.drawImage(hintsOff, 1060, -5);
+	}
+	
+	
+	if(flashCounter > 0) {
+		ctx.drawImage(flashImg,0,0);
+		flashCounter--;
+	}
+
 }
 
 //Zombie generating loop
@@ -210,6 +355,17 @@ function whatKeyUp(evt) {
 		if(action != "full") { //If not full auto, use keyup to disallow holding spacebar to keep firing.
 			fireBullet();
 			}
+		break;
+	case 82: // r
+		if(guns[activeGun].ammo < guns[activeGun].maxAmmo) {
+			guns[activeGun].ammo = 0;
+		}
+		break;
+	
+	case 75: //k
+		if(kickCD==0) {
+		kickCounter = 150;
+		}
 		break;
 	}
 }
@@ -225,8 +381,8 @@ function whatKeyDown(evt) {
 			ctx.drawImage(grayImg,0,0);
 			ctx.font = "50px Arial";
 			ctx.strokeStyle = 'red';
-			ctx.textAlign="start"; 
-			ctx.strokeText("Paused",500,300);
+			ctx.textAlign="center"; 
+			ctx.strokeText("Paused",550,300);
 			gamePaused = true;
 		} else {
 			gameLoop = setInterval(doGameLoop, 1);
@@ -281,6 +437,9 @@ function whatKeyDown(evt) {
       
       
 function fireBullet() {
-	bullets[bulletNum] = new bullet(heroX + 172, heroY + 65, true); 
-	bulletNum++;
+	if(guns[activeGun].ammo > 0) {
+		bullets[bulletNum] = new bullet(heroX + 172, heroY + 65, true); 
+		bulletNum++;
+		guns[activeGun].ammo--;
+	}
 }
