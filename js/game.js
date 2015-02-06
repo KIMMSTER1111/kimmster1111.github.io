@@ -56,6 +56,20 @@ var soundOn = new Image();
 var soundOff = new Image();
 var zombie2Img = new Image();
 var zombieCatImg = new Image();
+var bgImg = new Image();
+var newGameImg = new Image();
+var intro1 = new Image();
+var intro2 = new Image();
+var intro3 = new Image();
+var intro4 = new Image();
+var intro5 = new Image();
+var intro6 = new Image();
+var intro7 = new Image();
+var intro8 = new Image();
+var intro9 = new Image();
+var soundStorage = true; //remembers if sound was on before pausing
+var level = "LEVEL 1";
+var levelCounter = 0;
 
 map.src = 'img/map.png';
 blood.src = 'img/blood.png';
@@ -80,7 +94,17 @@ soundOn.src = 'img/soundOn.png';
 soundOff.src = 'img/soundOff.png';
 zombie2Img.src = 'img/zombie2.png';
 zombieCatImg.src = 'img/zombieCat.png';
-
+bgImg.src = 'img/bg.png';
+newGameImg.src = 'img/newGame.png';
+intro1.src = 'img/intro1.png';
+intro2.src = 'img/intro2.png';
+intro3.src = 'img/intro3.png';
+intro4.src = 'img/intro4.png';
+intro5.src = 'img/intro5.png';
+intro6.src = 'img/intro6.png';
+intro7.src = 'img/intro7.png';
+intro8.src = 'img/intro8.png';
+intro9.src = 'img/intro9.png';
 
 //Generates a random number between a min and max
 function randomInt(min,max) {
@@ -143,14 +167,40 @@ function createZombie() {
 }
 }
 
+function startMenu() {
+	
+	ctx.drawImage(bgImg,0,0);
+	ctx.drawImage(newGameImg,400,240);
+	
+	$("#map").click(function(e){
+
+    var x = Math.floor((e.pageX-$("#map").offset().left));
+    var y = Math.floor((e.pageY-$("#map").offset().top));
+	
+	console.log(x,y);
+	
+	if(x>418 && x < 600 && y >240 && y < 355) {
+		ctx.drawImage(intro1, 300, 0);
+		setTimeout(function(){ ctx.drawImage(intro2, 300, 0); }, 1500);
+		setTimeout(function(){ ctx.drawImage(grayImg,0,0); ctx.drawImage(intro3, 390, 130); }, 3000);
+		setTimeout(function(){ ctx.drawImage(intro4, 390, 130); }, 4000);
+		setTimeout(function(){ ctx.drawImage(intro5, 390, 130); }, 5000);
+		setTimeout(function(){ ctx.drawImage(intro6, 300, 0); }, 6000);
+		setTimeout(function(){ ctx.drawImage(intro7, 300, 0); }, 7500);
+		setTimeout(function(){ ctx.drawImage(intro8, 300, 0); }, 9000);
+		setTimeout(function(){ ctx.drawImage(intro9, 300, 0); }, 10500);
+		setTimeout(init, 12000);
+	}
+	
+	});
+}
+
 //Initial function to set shit up
 function init() {
 	ctx.drawImage(map, 0, 0);
 	ctx.drawImage(hero, 30,200);
-		
-	createZombie();
 	guns[activeGun] = new gun("SKS",10,10, 30, "semi", true, true, 650);
-	
+	levelCounter = 1000;
 	gameLoop = setInterval(doGameLoop, 1);
 	zombieLoop = setInterval(doZombieLoop, 3500);
 	//clearInterval() will stop setInterval
@@ -175,9 +225,11 @@ function init() {
 	if(x>1061 && x < 1100 && y > 40 && y < 68) {
 		if(sounds) {
 			sounds = false;
+			soundStorage = false;
 			document.getElementById("music").pause();
 		} else {
 			sounds = true;
+			soundStorage = true;
 			document.getElementById("music").play();
 		}
 	}
@@ -372,6 +424,14 @@ function doGameLoop() {
 		ctx.drawImage(soundOff, 1060, 35);
 	}
 	
+	if(levelCounter > 0) {
+		ctx.textAlign="center"; 
+		ctx.font = '60px courier';
+		ctx.fillStyle = 'red';
+		ctx.fillText(level,550,300);
+		levelCounter--;
+	}
+	
 	if(flashCounter > 0) {
 		ctx.drawImage(flashImg,0,0);
 		flashCounter--;
@@ -456,11 +516,20 @@ function whatKeyDown(evt) {
 			ctx.strokeStyle = 'red';
 			ctx.textAlign="center"; 
 			ctx.strokeText("Paused",550,300);
+			if(sounds) {
+				sounds = false;
+				document.getElementById("music").pause();
+			}
+				
 			gamePaused = true;
 		} else {
 			gameLoop = setInterval(doGameLoop, 1);
 			zombieLoop = setInterval(doZombieLoop, 2000);
 			gamePaused = false;
+			if(soundStorage) {
+				sounds = true;
+				document.getElementById("music").play();
+			}
 		}
 	break;
 	
