@@ -21,9 +21,9 @@
 var c = document.getElementById("map");
 var ctx = c.getContext("2d");
 var map = new Image();
-var heroX = 30;
+var heroX = 80;
 var heroY = 200;
-var hero = new Image();
+var heroG26 = new Image();
 var bulletImg = new Image();
 var zombie1Img = new Image();
 var blood = new Image();
@@ -35,11 +35,12 @@ var emptyHeartImg = new Image();
 var grayImg = new Image();
 var deathBloodImg = new Image();
 var moneyBackImg = new Image();
-var action = "semi"; //This refers to gun action and keeps track of whether holding down spacebar should keep firing.
 var money = 0;
 var activeGun = 0;
-var cartImg = new Image();
-var emptyCartImg = new Image();
+var cart762Img = new Image(); //javascript won't allow variable names beginning with numbers
+var emptyCart762Img = new Image(); //fuck javascript
+var cart9mmImg = new Image();
+var emptyCart9mmImg = new Image();
 var reloadCounter = 0;
 var kickCounter = 0;
 var kickCD = 0;
@@ -70,10 +71,21 @@ var intro9 = new Image();
 var soundStorage = true; //remembers if sound was on before pausing
 var level = "LEVEL 1";
 var levelCounter = 0;
+var heroSKS = new Image();
+var gunBG = new Image();
+var gunSelectedImg = new Image();
+var g26Img = new Image();
+var sksImg = new Image();
 
+
+gunBG.src = 'img/gunSlot.png';
+gunSelectedImg.src = 'img/gunSelected.png';
+g26Img.src = 'img/g26.png';
+sksImg.src = 'img/sks.png';
+heroSKS.src = 'img/heroSKS.png';
 map.src = 'img/map.png';
 blood.src = 'img/blood.png';
-hero.src = 'img/hero.png';
+heroG26.src = 'img/heroG26.png';
 bulletImg.src = 'img/bullet.png';
 zombie1Img.src = 'img/zombie1.png';
 zombieDeadImg.src = 'img/zombieDead.png';
@@ -82,8 +94,10 @@ emptyHeartImg.src = 'img/emptyHeart.png';
 grayImg.src = 'img/gray.png';
 deathBloodImg.src = 'img/deathBlood.png';
 moneyBackImg.src = 'img/moneyBack.png';
-cartImg.src = 'img/cartridge.png';
-emptyCartImg.src = 'img/empty.png';
+cart762Img.src = 'img/762cart.png';
+emptyCart762Img.src = 'img/762empty.png';
+cart9mmImg.src = 'img/9mmCart.png';
+emptyCart9mmImg.src = 'img/9mmEmpty.png';
 kickImg.src = 'img/heroKick.png';
 kickIcon.src = 'img/kickIcon.png';
 kickCDIcon.src = 'img/kickIconCD.png';
@@ -198,8 +212,9 @@ function startMenu() {
 //Initial function to set shit up
 function init() {
 	ctx.drawImage(map, 0, 0);
-	ctx.drawImage(hero, 30,200);
-	guns[activeGun] = new gun("SKS",10,10, 30, "semi", true, true, 650);
+	ctx.drawImage(heroG26, 30,200);
+	guns[0] = new gun("G26",10, 10, 18, "semi", true, true, 500);
+	guns[1] = new gun("SKS",10,10, 40, "semi", true, false, 650);
 	levelCounter = 1000;
 	gameLoop = setInterval(doGameLoop, 1);
 	zombieLoop = setInterval(doZombieLoop, 3500);
@@ -252,8 +267,16 @@ function doGameLoop() {
 		ctx.strokeStyle = 'white';
 		ctx.strokeText("reloading...", 420,550);
 		if(sounds && reloadCounter ==2) {
-			document.getElementById("reload").currentTime = 0;
-			document.getElementById("reload").play();
+			switch(guns[activeGun].name) {
+				case "G26":
+					document.getElementById("handgunReload").currentTime = 0;
+					document.getElementById("handgunReload").play();
+					break;
+				case "SKS":
+					document.getElementById("rifleReload").currentTime = 0;
+					document.getElementById("rifleReload").play();
+					break;
+			}
 		}
 	} else if (guns[activeGun].ammo==0 && reloadCounter >= guns[activeGun].reloadSpeed) {
 		guns[activeGun].ammo = guns[activeGun].maxAmmo;
@@ -353,9 +376,16 @@ function doGameLoop() {
 		}
     }
 	
-	
+	ctx.textAlign="end"; 
 	if(kickCD > 0) { //kick is on cool
-		ctx.drawImage(hero, heroX, heroY);
+		switch(guns[activeGun].name) {
+		case "G26":
+			ctx.drawImage(heroG26, heroX, heroY);
+			break;
+		case "SKS":
+			ctx.drawImage(heroSKS, heroX, heroY);
+			break;
+		}
 		ctx.drawImage(kickCDIcon, 900, 540);
 		ctx.font = "10px Arial";
 		ctx.strokeStyle = 'white';
@@ -369,7 +399,14 @@ function doGameLoop() {
 		kickCD = 2000;
 		kickCounter--;
 	} else { //normal, kick available
-		ctx.drawImage(hero, heroX, heroY);
+		switch(guns[activeGun].name) {
+		case "G26":
+			ctx.drawImage(heroG26, heroX, heroY);
+			break;
+		case "SKS":
+			ctx.drawImage(heroSKS, heroX, heroY);
+			break;
+		}
 		ctx.drawImage(kickIcon, 900, 540);
 		if(hints) {
 			ctx.font = "12px Arial";
@@ -383,10 +420,24 @@ function doGameLoop() {
 	var ammoCounter = 0;
 	for (i = 0; i < guns[activeGun].maxAmmo; i++) {
 		if(ammoCounter < guns[activeGun].ammo) {
-			ctx.drawImage(cartImg, 300+(ammoCounter*18), 550);
+			switch(guns[activeGun].name) {
+				case "G26":
+					ctx.drawImage(cart9mmImg, 300+(ammoCounter*18), 550);
+					break;
+				case "SKS":
+					ctx.drawImage(cart762Img, 300+(ammoCounter*18), 550);
+					break;
+			}
 			ammoCounter++;
 		} else {
-			ctx.drawImage(emptyCartImg,300+(ammoCounter*18), 550);
+			switch(guns[activeGun].name) {
+				case "G26":
+					ctx.drawImage(emptyCart9mmImg, 300+(ammoCounter*18), 550);
+					break;
+				case "SKS":
+					ctx.drawImage(emptyCart762Img, 300+(ammoCounter*18), 550);
+					break;
+			}
 			ammoCounter++;
 		}
 	}
@@ -470,7 +521,28 @@ function doGameLoop() {
 		}
 		break;
 	}
-
+	for(i=0; i<guns.length; i++) {
+		ctx.drawImage(gunBG, 10, 65+75*i);
+		ctx.font = "12px Arial";
+		ctx.textAlign="center"; 
+		ctx.fillStyle = 'black';
+		if(guns[i].active) {
+			ctx.drawImage(gunSelectedImg, 10, 65+75*i);
+		}
+		switch(guns[i].name) {
+			case "G26":
+				ctx.drawImage(g26Img, 10, 65+75*i);
+				ctx.fillText("Glock 26",45,130+75*i);
+				break;
+			case "SKS":
+				ctx.drawImage(sksImg, 10, 65+75*i);
+				ctx.fillText("SKS",45,130+75*i);
+				break;
+		}
+		ctx.font = "bold 22px Arial";
+		ctx.fillText(i+1,24,85+75*i);
+	}
+	
 }
 
 //Zombie generating loop
@@ -481,7 +553,7 @@ function doZombieLoop() {
 function whatKeyUp(evt) {
 	switch (evt.keyCode) {
 	case 32: //spacebar
-		if(action != "full") { //If not full auto, use keyup to disallow holding spacebar to keep firing.
+		if(guns[activeGun].action != "full") { //If not full auto, use keyup to disallow holding spacebar to keep firing.
 			fireBullet();
 			}
 		break;
@@ -534,7 +606,7 @@ function whatKeyDown(evt) {
 	break;
 	
 	case 32: //Spacebar
-		if(action == "full") { //If full auto, use keydown to allow holding spacebar to keep firing.
+		if(guns[activeGun].action == "full") { //If full auto, use keydown to allow holding spacebar to keep firing.
 			fireBullet();
 			}
 	break;
@@ -542,9 +614,9 @@ function whatKeyDown(evt) {
 	// Left arrow.
 	case 37:
 		heroX = heroX - 30;
-		if (heroX < 0) {
+		if (heroX < 80) {
 			// If at edge, reset position.
-			heroX = 0;
+			heroX = 80;
 		}
 		break;
 
@@ -572,6 +644,24 @@ function whatKeyDown(evt) {
 		if (heroY < 0) {
 			// If at edge, reset position.
 			heroY = 0;
+		}
+		break;
+		
+	// 1
+	case 49:
+		if(activeGun != 0 && reloadCounter == 0) {
+			guns[activeGun].active = false;
+			activeGun = 0;
+			guns[activeGun].active = true;
+		}
+		break;
+		
+	// 2
+	case 50:
+		if(activeGun != 1 && reloadCounter == 0) {
+			guns[activeGun].active = false;
+			activeGun = 1;
+			guns[activeGun].active = true;
 		}
 		break;
 	}
