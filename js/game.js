@@ -77,8 +77,17 @@ var gunSelectedImg = new Image();
 var g26Img = new Image();
 var sksImg = new Image();
 var started = false;
+var shopImg = new Image();
+var shopGun = new Image();
+var shopHealth = new Image();
+var shopDJ = new Image();
+var shopButton = new Image();
 
-
+shopButton.src = 'img/shopButton.png';
+shopHealth.src = 'img/shop-healthHighlight.png';
+shopDJ.src = 'img/shop-djHighlight.png';
+shopGun.src = 'img/shop-gunHighlight.png';
+shopImg.src = 'img/shop.png';
 gunBG.src = 'img/gunSlot.png';
 gunSelectedImg.src = 'img/gunSelected.png';
 g26Img.src = 'img/g26.png';
@@ -187,6 +196,7 @@ function startMenu() {
 	ctx.drawImage(bgImg,0,0);
 	ctx.drawImage(newGameImg,400,240);
 	ctx.drawImage(soundOn, 1060, 35);
+	ctx.drawImage(shopButton,400, 400);
 	
 	$("#map").click(function(e){
 
@@ -207,6 +217,11 @@ function startMenu() {
 		setTimeout(function(){ ctx.drawImage(intro8, 300, 0); }, 9000);
 		setTimeout(function(){ ctx.drawImage(intro9, 300, 0); }, 10500);
 		setTimeout(init, 12000);
+	}
+	
+	if(x>418&&x<600 && y> 400 && y < 515 && started==false) {
+		started = true;
+		shop();
 	}
 	
 	if(x>1060 && x < 1100 && y >0 && y < 30 && started) {
@@ -246,6 +261,30 @@ function init() {
 	window.addEventListener('keyup', whatKeyUp, true);
 	
 	
+}
+
+function shop() { //can't yet buy anything or truly interact with the shop yet. but onMouseOver is working, which is cool.
+	highlighted = false;
+	ctx.drawImage(shopImg,0,0);
+	$("#map").mousemove(function(e){
+		var mouseX = Math.floor((e.pageX-$("#map").offset().left));
+		var mouseY = Math.floor((e.pageY-$("#map").offset().top));
+		if(mouseX>110&&mouseX<210&&mouseY>30&&mouseY<360) {
+			ctx.drawImage(shopGun,0,0);
+			highlighted = true;
+		} else if(mouseX>405&&mouseX<635&&mouseY>220&&mouseY<510) {
+			ctx.drawImage(shopHealth,0,0);
+			highlighted = true;
+		} else if(mouseX>750&&mouseY>10&&mouseY<210) {
+			ctx.drawImage(shopDJ,0,0);
+			highlighted = true;
+		} else if(highlighted) {
+			ctx.drawImage(shopImg,0,0);
+			highlighted = false;
+		}
+		
+	}
+	);
 }
 
 
