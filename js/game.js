@@ -76,6 +76,7 @@ var gunBG = new Image();
 var gunSelectedImg = new Image();
 var g26Img = new Image();
 var sksImg = new Image();
+var started = false;
 
 
 gunBG.src = 'img/gunSlot.png';
@@ -185,6 +186,7 @@ function startMenu() {
 	
 	ctx.drawImage(bgImg,0,0);
 	ctx.drawImage(newGameImg,400,240);
+	ctx.drawImage(soundOn, 1060, 35);
 	
 	$("#map").click(function(e){
 
@@ -193,7 +195,8 @@ function startMenu() {
 	
 	console.log(x,y);
 	
-	if(x>418 && x < 600 && y >240 && y < 355) {
+	if(x>418 && x < 600 && y >240 && y < 355 && started==false) {
+		started = true;
 		ctx.drawImage(intro1, 300, 0);
 		setTimeout(function(){ ctx.drawImage(intro2, 300, 0); }, 1500);
 		setTimeout(function(){ ctx.drawImage(grayImg,0,0); ctx.drawImage(intro3, 390, 130); }, 3000);
@@ -204,6 +207,25 @@ function startMenu() {
 		setTimeout(function(){ ctx.drawImage(intro8, 300, 0); }, 9000);
 		setTimeout(function(){ ctx.drawImage(intro9, 300, 0); }, 10500);
 		setTimeout(init, 12000);
+	}
+	
+	if(x>1060 && x < 1100 && y >0 && y < 30 && started) {
+		if(hints) {
+			hints = false;
+		} else {
+			hints = true;
+		}
+	}
+	if(x>1061 && x < 1100 && y > 40 && y < 68 && started) {
+		if(sounds) {
+			sounds = false;
+			soundStorage = false;
+			document.getElementById("music").pause();
+		} else {
+			sounds = true;
+			soundStorage = true;
+			document.getElementById("music").play();
+		}
 	}
 	
 	});
@@ -223,35 +245,6 @@ function init() {
 	window.addEventListener('keydown', whatKeyDown, true);
 	window.addEventListener('keyup', whatKeyUp, true);
 	
-	$("#map").click(function(e){
-
-    var x = Math.floor((e.pageX-$("#map").offset().left));
-    var y = Math.floor((e.pageY-$("#map").offset().top));
-	
-	console.log(x,y);
-	
-	if(x>1060 && x < 1100 && y >0 && y < 30) {
-		if(hints) {
-			hints = false;
-		} else {
-			hints = true;
-		}
-	}
-	if(x>1061 && x < 1100 && y > 40 && y < 68) {
-		if(sounds) {
-			sounds = false;
-			soundStorage = false;
-			document.getElementById("music").pause();
-		} else {
-			sounds = true;
-			soundStorage = true;
-			document.getElementById("music").play();
-		}
-	}
-	
- });
-
-
 	
 }
 
@@ -464,6 +457,9 @@ function doGameLoop() {
 		ctx.strokeText("use spacebar to shoot", 550, 20);
 		ctx.strokeText("press Esc to pause", 250, 20);
 		ctx.strokeText("click to toggle sound", 1060, 60);
+		if(guns.length > 1) {
+			ctx.strokeText("press the number of the gun you want to use", 230, 65);
+		}
 	} else {
 		ctx.drawImage(hintsOff, 1060, -5);
 	}
@@ -588,6 +584,20 @@ function whatKeyDown(evt) {
 			ctx.strokeStyle = 'red';
 			ctx.textAlign="center"; 
 			ctx.strokeText("Paused",550,300);
+			ctx.font = "14px Arial";
+			ctx.textAlign = "start";
+			ctx.fillStyle = '#BCBCBC';
+			for(i=0;i<guns.length;i++) {
+				switch(guns[i].name) {
+					case "G26":
+					ctx.fillText("semi-automatic compact handgun. double stack magazine holds ten 9mm rounds.", 100, 110 + 75*i);
+					break;
+					case "SKS":
+					ctx.fillText("semi-automatic rifle converted to bullpup config. clip holds ten 7.62x39mm rounds.", 100, 110 + 75*i);
+					break;
+				}
+			}
+			
 			if(sounds) {
 				sounds = false;
 				document.getElementById("music").pause();
