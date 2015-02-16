@@ -1,3 +1,22 @@
+/////////////////////////////////////////////////////////////////////////////////
+//    Funky Zombie Killer                                                      //
+//    Copyright (C) 2015  Zack Reithmeyer                                      //
+//                                                                             //
+//    This program is free software: you can redistribute it and/or modify     //
+//    it under the terms of the GNU General Public License as published by     //
+//    the Free Software Foundation, either version 3 of the License, or        //
+//    (at your option) any later version.                                      //
+//                                                                             //
+//    This program is distributed in the hope that it will be useful,          //
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of           //
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            //
+//    GNU General Public License for more details.                             //
+//                                                                             //
+//    You should have received a copy of the GNU General Public License        //
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.    //
+/////////////////////////////////////////////////////////////////////////////////
+
+
 var bgImg = new Image();
 var newGameImg = new Image();
 var intro1 = new Image();
@@ -20,6 +39,7 @@ var sounds = true;
 var soundOn = new Image();
 var soundOff = new Image();
 var soundStorage = true; //remembers if sound was on before pausing
+var money = 1200;
 
 
 bgImg.src = 'img/bg.png';
@@ -66,7 +86,6 @@ function startMenu() {
 	guns[0] = new gun("G26",10, 10, 18, "semi", true, true, 500);
 	guns[1] = new gun("SKS",10,10, 40, "semi", false, false, 650);
 	
-	
 	ctx.drawImage(bgImg,0,0);
 	ctx.drawImage(newGameImg,400,240);
 	ctx.drawImage(soundOn, 1060, 35);
@@ -78,9 +97,8 @@ function startMenu() {
 	ctx.fillText("a.k.a. it doesn't work yet.", 380, 140);
 	
 	$("#map").click(function(e){
-
-    var x = Math.floor((e.pageX-$("#map").offset().left));
-    var y = Math.floor((e.pageY-$("#map").offset().top));
+	var x = Math.floor((e.pageX-$("#map").offset().left));
+	var y = Math.floor((e.pageY-$("#map").offset().top));
 	
 	console.log(x,y);
 	

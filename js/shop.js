@@ -1,3 +1,22 @@
+/////////////////////////////////////////////////////////////////////////////////
+//    Funky Zombie Killer                                                      //
+//    Copyright (C) 2015  Zack Reithmeyer                                      //
+//                                                                             //
+//    This program is free software: you can redistribute it and/or modify     //
+//    it under the terms of the GNU General Public License as published by     //
+//    the Free Software Foundation, either version 3 of the License, or        //
+//    (at your option) any later version.                                      //
+//                                                                             //
+//    This program is distributed in the hope that it will be useful,          //
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of           //
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            //
+//    GNU General Public License for more details.                             //
+//                                                                             //
+//    You should have received a copy of the GNU General Public License        //
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.    //
+/////////////////////////////////////////////////////////////////////////////////
+
+
 var c = document.getElementById("map");
 var ctx = c.getContext("2d");
 var shopImg = new Image();
@@ -7,32 +26,66 @@ var shopDJ = new Image();
 var gunDialogOpen = false;
 var inShop = false;
 var shopPaper = new Image();
+var moneyBackImg = new Image();
 
 shopPaper.src = 'img/shopPaper.png';
 shopHealth.src = 'img/shop-healthHighlight.png';
 shopDJ.src = 'img/shop-djHighlight.png';
 shopGun.src = 'img/shop-gunHighlight.png';
 shopImg.src = 'img/shop.png';
-
+moneyBackImg.src = 'img/moneyBack.png';
 
 function shop() { //can't yet buy anything or truly interact with the shop yet. but onMouseOver is working, which is cool.
 	inShop = true;
 	highlighted = false;
 	ctx.drawImage(shopImg,0,0);
+	ctx.drawImage(moneyBackImg, 30, 15);
+	ctx.font = "20px Arial";
+	ctx.fillStyle = 'green';
+	ctx.textAlign="end"; 
+	ctx.fillText("$", 50, 40);
+	ctx.fillText(money, 120, 40);
 	$("#map").mousemove(function(e){
 		var mouseX = Math.floor((e.pageX-$("#map").offset().left));
 		var mouseY = Math.floor((e.pageY-$("#map").offset().top));
+		ctx.font = '12px Arial';
+		ctx.fillStyle = 'black';
+		ctx.textAlign = 'start';
 		if(mouseX>110&&mouseX<210&&mouseY>30&&mouseY<360 && inShop) { //draw shop
 			ctx.drawImage(shopGun,0,0);
+			ctx.drawImage(moneyBackImg, 30, 15);
+			ctx.font = "20px Arial";
+			ctx.fillStyle = 'green';
+			ctx.textAlign="end"; 
+			ctx.fillText("$", 50, 40);
+			ctx.fillText(money, 120, 40);
 			highlighted = true;
 		} else if(mouseX>405&&mouseX<635&&mouseY>220&&mouseY<510 && inShop) {
 			ctx.drawImage(shopHealth,0,0);
+			ctx.drawImage(moneyBackImg, 30, 15);
+			ctx.font = "20px Arial";
+			ctx.fillStyle = 'green';
+			ctx.textAlign="end"; 
+			ctx.fillText("$", 50, 40);
+			ctx.fillText(money, 120, 40);
 			highlighted = true;
 		} else if(mouseX>750&&mouseY>10&&mouseY<210 && inShop) {
 			ctx.drawImage(shopDJ,0,0);
+			ctx.drawImage(moneyBackImg, 30, 15);
+			ctx.font = "20px Arial";
+			ctx.fillStyle = 'green';
+			ctx.textAlign="end"; 
+			ctx.fillText("$", 50, 40);
+			ctx.fillText(money, 120, 40);
 			highlighted = true;
 		} else if(highlighted && inShop) {
 			ctx.drawImage(shopImg,0,0);
+			ctx.drawImage(moneyBackImg, 30, 15);
+			ctx.font = "20px Arial";
+			ctx.fillStyle = 'green';
+			ctx.textAlign="end"; 
+			ctx.fillText("$", 50, 40);
+			ctx.fillText(money, 120, 40);
 			highlighted = false;
 		}
 		if(mouseX>370&&mouseX<700&&mouseY>54&&mouseY<82&&gunDialogOpen&&guns[1].purchased==false) { //sks highlighted
@@ -113,9 +166,53 @@ $("#map").click(function(e){
 		gunDialogOpen = false;
 		inShop = true;
 		ctx.drawImage(shopImg,0,0);
+		ctx.drawImage(moneyBackImg, 30, 15);
+		ctx.font = "20px Arial";
+		ctx.fillStyle = 'green';
+		ctx.textAlign="end"; 
+		ctx.fillText("$", 50, 40);
+		ctx.fillText(money, 120, 40);
 	}
-		
 	
+	if(x>370&&x<700&&y>54&&y<82&&gunDialogOpen) { //sks clicked
+		if(guns[1].purchased) { //sks already owned
+			alert("you already own this gun!"); //alerts suck, this should display some sexy pngs
+		} else if(money<400) { //insufficient funds
+			alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
+		} else { //purchase successful
+			money = money - 400;
+			guns[1].purchased = true;
+			displayGunDialog();
+		}
+	}
+	
+	if(x>385&&x<685&&y>315&&y<365&&gunDialogOpen) { //g26 upgrade clicked
+		if(guns[0].maxAmmo==33) { //already owned
+			alert("you have already purchased this upgrade!"); //alerts suck, this should display some sexy pngs
+		} else if(money<200) { //insufficent funds
+			alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
+		} else { //purchase successful
+			money = money - 200;
+			guns[0].maxAmmo = 33;
+			guns[0].ammo = 33;
+			displayGunDialog();
+		}
+	}
+	
+	if(x>380&&x<670&&y>395&&y<435&&gunDialogOpen) { //sks upgrade clicked
+		if(guns[1].purchased==false) { //sks not purchased
+			alert("you need to purchase the SKS before you can you upgrade it!");
+		} else if(guns[1].maxAmmo == 30) {
+			alert("you have already purchased this upgrade!");
+		} else if(money<400) {
+			alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
+		} else { //purchase successful
+			money = money - 400;
+			guns[1].maxAmmo = 30;
+			guns[1].ammo = 30;
+			displayGunDialog();
+		}
+	}
 	if(x>110&&x<210&&y>30&&y<360 && inShop) {
 		inShop = false;
 		gunDialogOpen = true;
@@ -159,4 +256,11 @@ function displayGunDialog() {
 	ctx.drawImage(sksxImg, 370, 370);
 	ctx.fillText("SKS - 30 round magazines.", 445, 420);
 	ctx.fillText("$400", 410, 440);
+	
+	ctx.drawImage(moneyBackImg, 30, 15);
+	ctx.font = "20px Arial";
+	ctx.fillStyle = 'green';
+	ctx.textAlign="end"; 
+	ctx.fillText("$", 50, 40);
+	ctx.fillText(money, 120, 40);
 }

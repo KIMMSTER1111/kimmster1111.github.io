@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 
-//Action canvas
 var c = document.getElementById("map");
 var ctx = c.getContext("2d");
 var map = new Image();
@@ -34,8 +33,6 @@ var heartImg = new Image();
 var emptyHeartImg = new Image();
 var grayImg = new Image();
 var deathBloodImg = new Image();
-var moneyBackImg = new Image();
-var money = 0;
 var activeGun = 0;
 var cart762Img = new Image(); //javascript won't allow variable names beginning with numbers
 var emptyCart762Img = new Image(); //fuck javascript
@@ -71,7 +68,6 @@ heartImg.src = 'img/heart.png';
 emptyHeartImg.src = 'img/emptyHeart.png';
 grayImg.src = 'img/gray.png';
 deathBloodImg.src = 'img/deathBlood.png';
-moneyBackImg.src = 'img/moneyBack.png';
 cart762Img.src = 'img/762cart.png';
 emptyCart762Img.src = 'img/762empty.png';
 cart9mmImg.src = 'img/9mmCart.png';
@@ -338,7 +334,6 @@ function doGameLoop() {
 		ctx.strokeText("press r to reload", 420, 550);
 	}
 	
-
 	
 	ctx.drawImage(moneyBackImg, 30, 15);
 	ctx.font = "20px Arial";
