@@ -52,46 +52,14 @@ var flashCounter = 0; //keep track of how long to display damage flash
 var flashImg = new Image();
 var hintsOn = new Image();
 var hintsOff = new Image();
-var sounds = true;
-var soundOn = new Image();
-var soundOff = new Image();
 var zombie2Img = new Image();
 var zombieCatImg = new Image();
-var bgImg = new Image();
-var newGameImg = new Image();
-var intro1 = new Image();
-var intro2 = new Image();
-var intro3 = new Image();
-var intro4 = new Image();
-var intro5 = new Image();
-var intro6 = new Image();
-var intro7 = new Image();
-var intro8 = new Image();
-var intro9 = new Image();
-var soundStorage = true; //remembers if sound was on before pausing
 var level = "LEVEL 1";
 var levelCounter = 0;
 var heroSKS = new Image();
-var gunBG = new Image();
-var gunSelectedImg = new Image();
-var g26Img = new Image();
-var sksImg = new Image();
 var started = false;
-var shopImg = new Image();
-var shopGun = new Image();
-var shopHealth = new Image();
-var shopDJ = new Image();
-var shopButton = new Image();
 
-shopButton.src = 'img/shopButton.png';
-shopHealth.src = 'img/shop-healthHighlight.png';
-shopDJ.src = 'img/shop-djHighlight.png';
-shopGun.src = 'img/shop-gunHighlight.png';
-shopImg.src = 'img/shop.png';
-gunBG.src = 'img/gunSlot.png';
-gunSelectedImg.src = 'img/gunSelected.png';
-g26Img.src = 'img/g26.png';
-sksImg.src = 'img/sks.png';
+
 heroSKS.src = 'img/heroSKS.png';
 map.src = 'img/map.png';
 blood.src = 'img/blood.png';
@@ -114,38 +82,9 @@ kickCDIcon.src = 'img/kickIconCD.png';
 flashImg.src = 'img/flash.png';
 hintsOn.src = 'img/hintsOn.png';
 hintsOff.src = 'img/hintsOff.png';
-soundOn.src = 'img/soundOn.png';
-soundOff.src = 'img/soundOff.png';
 zombie2Img.src = 'img/zombie2.png';
 zombieCatImg.src = 'img/zombieCat.png';
-bgImg.src = 'img/bg.png';
-newGameImg.src = 'img/newGame.png';
-intro1.src = 'img/intro1.png';
-intro2.src = 'img/intro2.png';
-intro3.src = 'img/intro3.png';
-intro4.src = 'img/intro4.png';
-intro5.src = 'img/intro5.png';
-intro6.src = 'img/intro6.png';
-intro7.src = 'img/intro7.png';
-intro8.src = 'img/intro8.png';
-intro9.src = 'img/intro9.png';
 
-//Generates a random number between a min and max
-function randomInt(min,max) {
-	return Math.floor(Math.random()*(max-min+1)+min);
-}
-
-//Gun class
-function gun(name, ammo,maxAmmo, damage, action, purchased, active, reloadSpeed) {
-	this.name = name; //string
-	this.ammo = ammo; //int
-	this.maxAmmo = maxAmmo; //int
-	this.damage = damage; //int
-	this.action = action; //string
-	this.purchased = purchased; //boolean
-	this.active = active; //boolean
-	this.reloadSpeed = reloadSpeed; //int
-}
 
 //Zombie class
 function zombie(x,y,dead, rot, hp, speed, type, height) {
@@ -168,7 +107,6 @@ function bullet(x,y,exists) {
 }
 
 //Create arrays to hold zombies and bullets and guns
-var guns = [];
 var bullets = [];
 var zombies = [];
 
@@ -191,67 +129,13 @@ function createZombie() {
 }
 }
 
-function startMenu() {
-	
-	ctx.drawImage(bgImg,0,0);
-	ctx.drawImage(newGameImg,400,240);
-	ctx.drawImage(soundOn, 1060, 35);
-	ctx.drawImage(shopButton,400, 400);
-	
-	$("#map").click(function(e){
-
-    var x = Math.floor((e.pageX-$("#map").offset().left));
-    var y = Math.floor((e.pageY-$("#map").offset().top));
-	
-	console.log(x,y);
-	
-	if(x>418 && x < 600 && y >240 && y < 355 && started==false) {
-		started = true;
-		ctx.drawImage(intro1, 300, 0);
-		setTimeout(function(){ ctx.drawImage(intro2, 300, 0); }, 1500);
-		setTimeout(function(){ ctx.drawImage(grayImg,0,0); ctx.drawImage(intro3, 390, 130); }, 3000);
-		setTimeout(function(){ ctx.drawImage(intro4, 390, 130); }, 4000);
-		setTimeout(function(){ ctx.drawImage(intro5, 390, 130); }, 5000);
-		setTimeout(function(){ ctx.drawImage(intro6, 300, 0); }, 6000);
-		setTimeout(function(){ ctx.drawImage(intro7, 300, 0); }, 7500);
-		setTimeout(function(){ ctx.drawImage(intro8, 300, 0); }, 9000);
-		setTimeout(function(){ ctx.drawImage(intro9, 300, 0); }, 10500);
-		setTimeout(init, 12000);
-	}
-	
-	if(x>418&&x<600 && y> 400 && y < 515 && started==false) {
-		started = true;
-		shop();
-	}
-	
-	if(x>1060 && x < 1100 && y >0 && y < 30 && started) {
-		if(hints) {
-			hints = false;
-		} else {
-			hints = true;
-		}
-	}
-	if(x>1061 && x < 1100 && y > 40 && y < 68 && started) {
-		if(sounds) {
-			sounds = false;
-			soundStorage = false;
-			document.getElementById("music").pause();
-		} else {
-			sounds = true;
-			soundStorage = true;
-			document.getElementById("music").play();
-		}
-	}
-	
-	});
-}
 
 //Initial function to set shit up
 function init() {
 	ctx.drawImage(map, 0, 0);
 	ctx.drawImage(heroG26, 30,200);
 	guns[0] = new gun("G26",10, 10, 18, "semi", true, true, 500);
-	guns[1] = new gun("SKS",10,10, 40, "semi", true, false, 650);
+	guns[1] = new gun("SKS",10,10, 40, "semi", false, false, 650);
 	levelCounter = 1000;
 	gameLoop = setInterval(doGameLoop, 1);
 	zombieLoop = setInterval(doZombieLoop, 3500);
@@ -262,31 +146,6 @@ function init() {
 	
 	
 }
-
-function shop() { //can't yet buy anything or truly interact with the shop yet. but onMouseOver is working, which is cool.
-	highlighted = false;
-	ctx.drawImage(shopImg,0,0);
-	$("#map").mousemove(function(e){
-		var mouseX = Math.floor((e.pageX-$("#map").offset().left));
-		var mouseY = Math.floor((e.pageY-$("#map").offset().top));
-		if(mouseX>110&&mouseX<210&&mouseY>30&&mouseY<360) {
-			ctx.drawImage(shopGun,0,0);
-			highlighted = true;
-		} else if(mouseX>405&&mouseX<635&&mouseY>220&&mouseY<510) {
-			ctx.drawImage(shopHealth,0,0);
-			highlighted = true;
-		} else if(mouseX>750&&mouseY>10&&mouseY<210) {
-			ctx.drawImage(shopDJ,0,0);
-			highlighted = true;
-		} else if(highlighted) {
-			ctx.drawImage(shopImg,0,0);
-			highlighted = false;
-		}
-		
-	}
-	);
-}
-
 
 	
 //Main loop to listen for keypresses and check for collisions, etc
@@ -496,9 +355,7 @@ function doGameLoop() {
 		ctx.strokeText("use spacebar to shoot", 550, 20);
 		ctx.strokeText("press Esc to pause", 250, 20);
 		ctx.strokeText("click to toggle sound", 1060, 60);
-		if(guns.length > 1) {
-			ctx.strokeText("press the number of the gun you want to use", 230, 65);
-		}
+		ctx.strokeText("press the number of the gun you want to use", 230, 65);
 	} else {
 		ctx.drawImage(hintsOff, 1060, -5);
 	}
@@ -557,6 +414,7 @@ function doGameLoop() {
 		break;
 	}
 	for(i=0; i<guns.length; i++) {
+		if(guns[i].purchased == true) {
 		ctx.drawImage(gunBG, 10, 65+75*i);
 		ctx.font = "12px Arial";
 		ctx.textAlign="center"; 
@@ -576,6 +434,7 @@ function doGameLoop() {
 		}
 		ctx.font = "bold 22px Arial";
 		ctx.fillText(i+1,24,85+75*i);
+		}
 	}
 	
 }
@@ -627,13 +486,15 @@ function whatKeyDown(evt) {
 			ctx.textAlign = "start";
 			ctx.fillStyle = '#BCBCBC';
 			for(i=0;i<guns.length;i++) {
+				if(guns[i].purchased == true) {
 				switch(guns[i].name) {
 					case "G26":
-					ctx.fillText("semi-automatic compact handgun. double stack magazine holds ten 9mm rounds.", 100, 110 + 75*i);
+					ctx.fillText("semi-automatic subcompact handgun. double stack magazine holds ten 9mm rounds.", 100, 110 + 75*i);
 					break;
 					case "SKS":
 					ctx.fillText("semi-automatic rifle converted to bullpup config. clip holds ten 7.62x39mm rounds.", 100, 110 + 75*i);
 					break;
+				}
 				}
 			}
 			
@@ -707,10 +568,12 @@ function whatKeyDown(evt) {
 		
 	// 2
 	case 50:
-		if(activeGun != 1 && reloadCounter == 0) {
-			guns[activeGun].active = false;
-			activeGun = 1;
-			guns[activeGun].active = true;
+		if(guns[1].purchased) {
+			if(activeGun != 1 && reloadCounter == 0) {
+				guns[activeGun].active = false;
+				activeGun = 1;
+				guns[activeGun].active = true;
+			}
 		}
 		break;
 	}
