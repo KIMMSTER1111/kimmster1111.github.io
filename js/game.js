@@ -28,7 +28,6 @@ var zombie1Img = new Image();
 var blood = new Image();
 var zombieDeadImg = new Image();
 var gamePaused = false;
-var health = 3;
 var heartImg = new Image();
 var emptyHeartImg = new Image();
 var grayImg = new Image();
@@ -54,7 +53,6 @@ var zombieCatImg = new Image();
 var level = "LEVEL 1";
 var levelCounter = 0;
 var heroSKS = new Image();
-var started = false;
 
 
 heroSKS.src = 'img/heroSKS.png';
@@ -130,9 +128,7 @@ function createZombie() {
 function init() {
 	ctx.drawImage(map, 0, 0);
 	ctx.drawImage(heroG26, 30,200);
-	guns[0] = new gun("G26",10, 10, 18, "semi", true, true, 500);
-	guns[1] = new gun("SKS",10,10, 40, "semi", false, false, 650);
-	levelCounter = 1000;
+	levelCounter = 500;
 	gameLoop = setInterval(doGameLoop, 1);
 	zombieLoop = setInterval(doZombieLoop, 3500);
 	//clearInterval() will stop setInterval
@@ -188,7 +184,7 @@ function doGameLoop() {
 				}
 			} else if (zombies[j].x < heroX + 250 && zombies[j].y + zombies[j].height + 50 > heroY && zombies[j].y < heroY + 200 && kickCounter > 0) {
 				zombies[j].dead = true;
-				money = money + randomInt(1,10);
+				money = money + randomInt(1,12);
 			}
 				
 			if(zombies[j].x <= 50) {
@@ -249,8 +245,8 @@ function doGameLoop() {
 						document.getElementById("catKill").play();
 					}
 				}
-				if(randomInt(1,6)>3) { //roll 1d6 and get money on 4, 5, or 6
-					money = money + randomInt(1,10);
+				if(randomInt(1,6)>2) { //roll 1d6 and get money on 3, 4, 5, or 6
+					money = money + randomInt(2,12);
 				}
 			} else {
 				zombies[j].hp = zombies[j].hp - randomInt(guns[activeGun].damage-8, guns[activeGun].damage+8); //this damage should be a variable to account for different guns later
@@ -309,20 +305,20 @@ function doGameLoop() {
 		if(ammoCounter < guns[activeGun].ammo) {
 			switch(guns[activeGun].name) {
 				case "G26":
-					ctx.drawImage(cart9mmImg, 300+(ammoCounter*18), 550);
+					ctx.drawImage(cart9mmImg, 250+(ammoCounter*18), 550);
 					break;
 				case "SKS":
-					ctx.drawImage(cart762Img, 300+(ammoCounter*18), 550);
+					ctx.drawImage(cart762Img, 250+(ammoCounter*18), 550);
 					break;
 			}
 			ammoCounter++;
 		} else {
 			switch(guns[activeGun].name) {
 				case "G26":
-					ctx.drawImage(emptyCart9mmImg, 300+(ammoCounter*18), 550);
+					ctx.drawImage(emptyCart9mmImg, 250+(ammoCounter*18), 550);
 					break;
 				case "SKS":
-					ctx.drawImage(emptyCart762Img, 300+(ammoCounter*18), 550);
+					ctx.drawImage(emptyCart762Img, 250+(ammoCounter*18), 550);
 					break;
 			}
 			ammoCounter++;
@@ -375,25 +371,7 @@ function doGameLoop() {
 		flashCounter--;
 	}
 	
-	
-		switch(health) { //switch is probably not ideal, but it's functional for now. A loop would probably be better
-	case 1:
-		ctx.drawImage(heartImg, 50, 550);
-		ctx.drawImage(emptyHeartImg, 80, 550);
-		ctx.drawImage(emptyHeartImg, 110, 550);
-		break;
-	case 2:
-		ctx.drawImage(heartImg, 50, 550);
-		ctx.drawImage(heartImg, 80, 550);
-		ctx.drawImage(emptyHeartImg, 110, 550);
-		break;
-	case 3:
-		ctx.drawImage(heartImg, 50, 550);
-		ctx.drawImage(heartImg, 80, 550);
-		ctx.drawImage(heartImg, 110, 550);
-		break;
-	default:
-	case 0:
+	if(health<=0) {
 		flashCounter = 0;
 		clearInterval(gameLoop);
 		clearInterval(zombieLoop);
@@ -406,8 +384,15 @@ function doGameLoop() {
 		if(sounds) {
 			document.getElementById("death").play();
 		}
-		break;
+	} else {
+		for(i=0;i<health;i++) {
+			ctx.drawImage(heartImg, 20 + 30*i, 550);
+		}
+		for(i=health;i<maxHealth;i++) {
+			ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
+		}
 	}
+	
 	for(i=0; i<guns.length; i++) {
 		if(guns[i].purchased == true) {
 		ctx.drawImage(gunBG, 10, 65+75*i);
@@ -484,10 +469,18 @@ function whatKeyDown(evt) {
 				if(guns[i].purchased == true) {
 				switch(guns[i].name) {
 					case "G26":
-					ctx.fillText("semi-automatic subcompact handgun. double stack magazine holds ten 9mm rounds.", 100, 110 + 75*i);
+					if(guns[i].maxAmmo==10) {
+						ctx.fillText("semi-automatic subcompact handgun. double stack magazine holds ten 9mm rounds.", 100, 110 + 75*i);
+					} else {
+						ctx.fillText("semi-automatic subcompact handgun. extended magazine holds thirty three 9mm rounds.", 100, 110 + 75*i);
+					}
 					break;
 					case "SKS":
-					ctx.fillText("semi-automatic rifle converted to bullpup config. clip holds ten 7.62x39mm rounds.", 100, 110 + 75*i);
+					if(guns[i].maxAmmo==10) {
+						ctx.fillText("semi-automatic rifle converted to bullpup config. clip holds ten 7.62x39mm rounds.", 100, 110 + 75*i);
+					} else {
+						ctx.fillText("semi-automatic rifle converted to bullpup config. Tapco magazine holds thirty 7.62x39mm rounds.", 100, 110 + 75*i);
+					}
 					break;
 				}
 				}

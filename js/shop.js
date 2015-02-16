@@ -23,7 +23,9 @@ var shopImg = new Image();
 var shopGun = new Image();
 var shopHealth = new Image();
 var shopDJ = new Image();
+var shopDoors = new Image();
 var gunDialogOpen = false;
+var healthDialogOpen = false;
 var inShop = false;
 var shopPaper = new Image();
 var moneyBackImg = new Image();
@@ -32,6 +34,7 @@ shopPaper.src = 'img/shopPaper.png';
 shopHealth.src = 'img/shop-healthHighlight.png';
 shopDJ.src = 'img/shop-djHighlight.png';
 shopGun.src = 'img/shop-gunHighlight.png';
+shopDoors.src = 'img/shopDoors.png';
 shopImg.src = 'img/shop.png';
 moneyBackImg.src = 'img/moneyBack.png';
 
@@ -78,6 +81,15 @@ function shop() { //can't yet buy anything or truly interact with the shop yet. 
 			ctx.fillText("$", 50, 40);
 			ctx.fillText(money, 120, 40);
 			highlighted = true;
+		} else if(mouseX>270&&mouseX<400&&mouseY>100&&mouseY<208&&inShop) {
+			ctx.drawImage(shopDoors,0,0);
+			ctx.drawImage(moneyBackImg, 30, 15);
+			ctx.font = "20px Arial";
+			ctx.fillStyle = 'green';
+			ctx.textAlign="end"; 
+			ctx.fillText("$", 50, 40);
+			ctx.fillText(money, 120, 40);
+			highlighted = true;
 		} else if(highlighted && inShop) {
 			ctx.drawImage(shopImg,0,0);
 			ctx.drawImage(moneyBackImg, 30, 15);
@@ -88,6 +100,23 @@ function shop() { //can't yet buy anything or truly interact with the shop yet. 
 			ctx.fillText(money, 120, 40);
 			highlighted = false;
 		}
+		
+		if(mouseX>370&&mouseX<700&&mouseY>54&&mouseY<82&&healthDialogOpen) { //extra heart selected
+			if(highlighted==false) {
+				ctx.drawImage(gunSelectedImg, 370, 40);
+				ctx.drawImage(heartImg, 400, 60);
+				ctx.fillText("Extra Heart - Increase the damage you can take", 445, 70);
+				ctx.fillText("before dying.", 445, 85);
+				ctx.fillText("$", 385, 100);	
+				ctx.fillText(300*maxHealth, 405, 100);
+				highlighted = true;
+			}
+		} else if(highlighted && healthDialogOpen) {
+			highlighted = false;
+			displayHealthDialog();
+			
+		}
+		
 		if(mouseX>370&&mouseX<700&&mouseY>54&&mouseY<82&&gunDialogOpen&&guns[1].purchased==false) { //sks highlighted
 			ctx.fillStyle = 'black';
 			if(highlighted==false) { //only draw if necessary
@@ -162,8 +191,9 @@ $("#map").click(function(e){
     var x = Math.floor((e.pageX-$("#map").offset().left));
     var y = Math.floor((e.pageY-$("#map").offset().top));
 	
-	if(x>703&&x<730&&y>18&&y<44&&gunDialogOpen) {
+	if(x>703&&x<730&&y>18&&y<44&&(gunDialogOpen||healthDialogOpen)) { //close dialog
 		gunDialogOpen = false;
+		healthDialogOpen = false;
 		inShop = true;
 		ctx.drawImage(shopImg,0,0);
 		ctx.drawImage(moneyBackImg, 30, 15);
@@ -173,6 +203,23 @@ $("#map").click(function(e){
 		ctx.fillText("$", 50, 40);
 		ctx.fillText(money, 120, 40);
 	}
+	
+	if(x>270&&x<400&&y>100&&y<208&&inShop) {
+		inShop = false;
+		init();
+	}
+	
+	if(x>370&&x<700&&y>54&&y<82&&healthDialogOpen) { //heart clicked
+		if(money<(300*maxHealth)) { //insufficient funds
+			alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
+		} else { //purchase successful
+			money = money - (300*maxHealth);
+			maxHealth = maxHealth + 1;
+			health = health + 1;
+			displayHealthDialog();
+		}
+	}
+	
 	
 	if(x>370&&x<700&&y>54&&y<82&&gunDialogOpen) { //sks clicked
 		if(guns[1].purchased) { //sks already owned
@@ -219,7 +266,9 @@ $("#map").click(function(e){
 		displayGunDialog();
 		
 	} else if(x>405&&x<635&&y>220&&y<510 && inShop) {
-		alert("You clicked on the whores!");
+		inShop = false;
+		healthDialogOpen = true;
+		displayHealthDialog();
 	} else if(x>750&&y>10&&y<210 && inShop) {
 		alert("You clicked on the dj!");
 	}
@@ -256,6 +305,26 @@ function displayGunDialog() {
 	ctx.drawImage(sksxImg, 370, 370);
 	ctx.fillText("SKS - 30 round magazines.", 445, 420);
 	ctx.fillText("$400", 410, 440);
+	
+	ctx.drawImage(moneyBackImg, 30, 15);
+	ctx.font = "20px Arial";
+	ctx.fillStyle = 'green';
+	ctx.textAlign="end"; 
+	ctx.fillText("$", 50, 40);
+	ctx.fillText(money, 120, 40);
+}
+
+function displayHealthDialog() {
+	ctx.drawImage(shopPaper, 350, 0);
+	ctx.font = '12px Arial';
+	ctx.fillStyle = 'black';
+	ctx.textAlign = 'start';
+	ctx.fillText("Upgrades", 530, 50);
+	ctx.drawImage(heartImg, 400, 60);
+	ctx.fillText("Extra Heart - Increase the damage you can take", 445, 70);
+	ctx.fillText("before dying.", 445, 85);
+	ctx.fillText("$", 385, 100);	
+	ctx.fillText(300*maxHealth, 405, 100);
 	
 	ctx.drawImage(moneyBackImg, 30, 15);
 	ctx.font = "20px Arial";

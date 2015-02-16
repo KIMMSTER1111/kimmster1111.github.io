@@ -40,6 +40,9 @@ var soundOn = new Image();
 var soundOff = new Image();
 var soundStorage = true; //remembers if sound was on before pausing
 var money = 1200;
+var maxHealth = 3;
+var health = 3;
+var started = false;
 
 
 bgImg.src = 'img/bg.png';
