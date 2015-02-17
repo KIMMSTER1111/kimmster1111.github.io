@@ -26,9 +26,11 @@ var shopDJ = new Image();
 var shopDoors = new Image();
 var gunDialogOpen = false;
 var healthDialogOpen = false;
+var funkDialogOpen = false;
 var inShop = false;
 var shopPaper = new Image();
 var moneyBackImg = new Image();
+var subsonicImg = new Image();
 
 shopPaper.src = 'img/shopPaper.png';
 shopHealth.src = 'img/shop-healthHighlight.png';
@@ -37,8 +39,9 @@ shopGun.src = 'img/shop-gunHighlight.png';
 shopDoors.src = 'img/shopDoors.png';
 shopImg.src = 'img/shop.png';
 moneyBackImg.src = 'img/moneyBack.png';
+subsonicImg.src = 'img/stereo.png';
 
-function shop() { //can't yet buy anything or truly interact with the shop yet. but onMouseOver is working, which is cool.
+function shop() {
 	inShop = true;
 	highlighted = false;
 	ctx.drawImage(shopImg,0,0);
@@ -105,10 +108,6 @@ function shop() { //can't yet buy anything or truly interact with the shop yet. 
 			if(highlighted==false) {
 				ctx.drawImage(gunSelectedImg, 370, 40);
 				ctx.drawImage(heartImg, 400, 60);
-				ctx.fillText("Extra Heart - Increase the damage you can take", 445, 70);
-				ctx.fillText("before dying.", 445, 85);
-				ctx.fillText("$", 385, 100);	
-				ctx.fillText(300*maxHealth, 405, 100);
 				highlighted = true;
 			}
 		} else if(highlighted && healthDialogOpen) {
@@ -116,6 +115,21 @@ function shop() { //can't yet buy anything or truly interact with the shop yet. 
 			displayHealthDialog();
 			
 		}
+		
+		if(mouseX>375&&mouseX<700&&mouseY>54&&mouseY<112&&funkDialogOpen) { 
+			if(highlighted==false) {
+				if(subsonicUnlocked==false) {
+					ctx.drawImage(gunSelectedImg, 370, 40);
+					ctx.drawImage(subsonicImg, 370, 40);
+					highlighted = true;
+				}
+			}
+		} else if(highlighted && funkDialogOpen) {
+			highlighted = false;
+			displayFunkDialog();
+			
+		}
+		
 		
 		if(mouseX>370&&mouseX<700&&mouseY>54&&mouseY<82&&gunDialogOpen&&guns[1].purchased==false) { //sks highlighted
 			ctx.fillStyle = 'black';
@@ -146,7 +160,6 @@ function shop() { //can't yet buy anything or truly interact with the shop yet. 
 				if(guns[0].maxAmmo==10) { //g26 upgrade
 					ctx.drawImage(gunSelectedImg, 370, 310);
 					ctx.drawImage(g26xImg, 370, 300);
-					ctx.fillText("Glock 26 - 33 round magazines.", 445, 340);
 					ctx.fillText("$200", 410, 360);
 					highlighted = true;
 				}
@@ -165,13 +178,10 @@ function shop() { //can't yet buy anything or truly interact with the shop yet. 
 				}
 				if(guns[0].maxAmmo==10) { //g26 upgrade
 					ctx.drawImage(g26xImg, 370, 300);
-					ctx.fillText("Glock 26 - 33 round magazines.", 445, 340);
-					ctx.fillText("$200", 410, 360);
 				}
 				if(guns[1].purchased && guns[1].maxAmmo == 10) { //sks upgrade
 					ctx.drawImage(gunSelectedImg, 370, 375);
 					ctx.drawImage(sksxImg, 370, 370);
-					ctx.fillText("SKS - 30 round magazines.", 445, 420);
 					ctx.fillText("$400", 410, 440);
 					highlighted = true;
 				}
@@ -191,9 +201,10 @@ $("#map").click(function(e){
     var x = Math.floor((e.pageX-$("#map").offset().left));
     var y = Math.floor((e.pageY-$("#map").offset().top));
 	
-	if(x>703&&x<730&&y>18&&y<44&&(gunDialogOpen||healthDialogOpen)) { //close dialog
+	if(x>703&&x<730&&y>18&&y<44&&(gunDialogOpen||healthDialogOpen||funkDialogOpen)) { //close dialog
 		gunDialogOpen = false;
 		healthDialogOpen = false;
+		funkDialogOpen = false;
 		inShop = true;
 		ctx.drawImage(shopImg,0,0);
 		ctx.drawImage(moneyBackImg, 30, 15);
@@ -220,6 +231,17 @@ $("#map").click(function(e){
 		}
 	}
 	
+	if(x>375&&x<700&&y>54&&y<112&&funkDialogOpen) { 
+		if(subsonicUnlocked) {
+			alert("you already bought this, bitch!"); //alerts suck, this should display some sexy pngs
+		} else if(money<1200) {
+			alert("come back with some more money, puta"); //alerts suck, this should display some sexy pngs
+		} else {
+			money = money - 1200;
+			subsonicUnlocked = true;
+			displayFunkDialog();
+		}
+	}
 	
 	if(x>370&&x<700&&y>54&&y<82&&gunDialogOpen) { //sks clicked
 		if(guns[1].purchased) { //sks already owned
@@ -270,7 +292,9 @@ $("#map").click(function(e){
 		healthDialogOpen = true;
 		displayHealthDialog();
 	} else if(x>750&&y>10&&y<210 && inShop) {
-		alert("You clicked on the dj!");
+		inShop = false;
+		funkDialogOpen = true;
+		displayFunkDialog();
 	}
 } );
 }
@@ -325,6 +349,31 @@ function displayHealthDialog() {
 	ctx.fillText("before dying.", 445, 85);
 	ctx.fillText("$", 385, 100);	
 	ctx.fillText(300*maxHealth, 405, 100);
+	
+	ctx.drawImage(moneyBackImg, 30, 15);
+	ctx.font = "20px Arial";
+	ctx.fillStyle = 'green';
+	ctx.textAlign="end"; 
+	ctx.fillText("$", 50, 40);
+	ctx.fillText(money, 120, 40);
+}
+
+function displayFunkDialog() {
+	ctx.drawImage(shopPaper, 350, 0);
+	ctx.font = '12px Arial';
+	ctx.fillStyle = 'black';
+	ctx.textAlign = 'start';
+	ctx.fillText("Abilities", 530, 50);
+	ctx.drawImage(subsonicImg, 370, 40);
+	if(subsonicUnlocked) {
+		ctx.fillStyle = 'gray';
+	} else {
+		ctx.fillStyle = 'black';
+	}
+	ctx.fillText("Subsonic Shockwave - Push back zombies with", 445, 80);
+	ctx.fillText("some bass from your sound system.", 445, 95);
+	ctx.fillText("CURRENTLY NO IN-GAME FUNCTION!", 445, 110);
+	ctx.fillText("$1000", 395, 120);	
 	
 	ctx.drawImage(moneyBackImg, 30, 15);
 	ctx.font = "20px Arial";

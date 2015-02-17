@@ -43,6 +43,7 @@ var money = 1200;
 var maxHealth = 3;
 var health = 3;
 var started = false;
+var subsonicUnlocked = false;
 
 
 bgImg.src = 'img/bg.png';
