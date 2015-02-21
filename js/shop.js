@@ -372,8 +372,7 @@ function displayFunkDialog() {
 	}
 	ctx.fillText("Subsonic Shockwave - Push back zombies with", 445, 80);
 	ctx.fillText("some bass from your sound system.", 445, 95);
-	ctx.fillText("CURRENTLY NO IN-GAME FUNCTION!", 445, 110);
-	ctx.fillText("$1000", 395, 120);	
+	ctx.fillText("$1200", 395, 120);	
 	
 	ctx.drawImage(moneyBackImg, 30, 15);
 	ctx.font = "20px Arial";

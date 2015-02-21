@@ -53,8 +53,16 @@ var zombieCatImg = new Image();
 var level = "LEVEL 1";
 var levelCounter = 0;
 var heroSKS = new Image();
+var subIcon = new Image();
+var subIcon = new Image();
+var subCDIcon = new Image();
+var subCounter = 0;
+var subCD = 0;
+var subHero = new Image();
 
-
+subHero.src = 'img/heroShock.png';
+subIcon.src = 'img/subIcon.png';
+subCDIcon.src = 'img/subIconCD.png';
 heroSKS.src = 'img/heroSKS.png';
 map.src = 'img/map.png';
 blood.src = 'img/blood.png';
@@ -258,46 +266,8 @@ function doGameLoop() {
 			}
 		}
     }
+	drawHero();
 	
-	ctx.textAlign="end"; 
-	if(kickCD > 0) { //kick is on cool
-		switch(guns[activeGun].name) {
-		case "G26":
-			ctx.drawImage(heroG26, heroX, heroY);
-			break;
-		case "SKS":
-			ctx.drawImage(heroSKS, heroX, heroY);
-			break;
-		}
-		ctx.drawImage(kickCDIcon, 900, 540);
-		ctx.font = "10px Arial";
-		ctx.strokeStyle = 'white';
-		ctx.strokeText(((kickCD/1000)*10).toFixed(2),947,535);
-		kickCD--;
-	} else if (kickCounter > 1) { //currently kicking
-		ctx.drawImage(kickImg, heroX, heroY);
-		kickCounter--;
-	} else if(kickCounter == 1) { //end kick
-		ctx.drawImage(kickImg,heroX,heroY);
-		kickCD = 2000;
-		kickCounter--;
-	} else { //normal, kick available
-		switch(guns[activeGun].name) {
-		case "G26":
-			ctx.drawImage(heroG26, heroX, heroY);
-			break;
-		case "SKS":
-			ctx.drawImage(heroSKS, heroX, heroY);
-			break;
-		}
-		ctx.drawImage(kickIcon, 900, 540);
-		if(hints) {
-			ctx.font = "12px Arial";
-			ctx.strokeStyle = 'black';
-			ctx.strokeText("press k to kick", 970, 540);
-		}
-	}
-		
 		
 	
 	var ammoCounter = 0;
@@ -446,6 +416,20 @@ function whatKeyUp(evt) {
 			}
 		}
 		break;
+	
+	
+	case 83: //s
+		if(subCD==0) {
+			subCounter = 80;
+			if(sounds) {
+				document.getElementById("bass").currentTime = 0;
+				document.getElementById("bass").play();
+			}
+			for(i=0;i<zombies.length;i++) {
+				zombies[i].x = zombies[i].x + 180;
+			}
+		}
+	break;
 	}
 }
 // Get key presses
@@ -577,6 +561,64 @@ function fireBullet() {
 			var sound = document.getElementById("bulletFire");
 			sound.currentTime = 0;
 			sound.play();
+		}
+	}
+}
+
+function drawHero() {
+	ctx.textAlign="end"; 
+	if(kickCounter == 0 && subCounter == 0) { //not kicking or shocking
+		switch(guns[activeGun].name) {
+		case "G26":
+			ctx.drawImage(heroG26, heroX, heroY);
+			break;
+		case "SKS":
+			ctx.drawImage(heroSKS, heroX, heroY);
+			break;
+		}
+	} else if (kickCounter > 1) { //currently kicking
+		ctx.drawImage(kickImg, heroX, heroY);
+		kickCounter--;
+	} else if(kickCounter == 1) { //end kick
+		ctx.drawImage(kickImg,heroX,heroY);
+		kickCD = 2000;
+		kickCounter--;
+	} else if(subCounter > 1) { //currently shocking
+		ctx.drawImage(subHero, heroX, heroY);
+		subCounter--;
+	} else if(subCounter == 1) { //end shock
+		ctx.drawImage(subHero, heroX, heroY);
+		subCD = 2000;
+		subCounter--;
+	}
+	if(kickCD > 0) {
+		ctx.drawImage(kickCDIcon, 900, 540);
+		ctx.font = "10px Arial";
+		ctx.strokeStyle = 'white';
+		ctx.strokeText(((kickCD/1000)*10).toFixed(2),947,535);
+		kickCD--;
+	} else {
+		ctx.drawImage(kickIcon, 900, 540);
+		if(hints) {
+			ctx.font = "12px Arial";
+			ctx.strokeStyle = 'black';
+			ctx.strokeText("press k to kick", 965, 540);
+		}
+	}
+	if(subsonicUnlocked) {
+		if(subCD > 0) {
+			ctx.drawImage(subCDIcon, 970, 538);
+			ctx.font = "10px Arial";
+			ctx.strokeStyle = 'white';
+			ctx.strokeText(((subCD/1000)*10).toFixed(2),1020,535);
+			subCD--;
+		} else {
+		ctx.drawImage(subIcon, 970, 538);
+		if(hints) {
+			ctx.font = "12px Arial";
+			ctx.strokeStyle = 'black';
+			ctx.strokeText("press s to shock", 1060, 540);
+		}
 		}
 	}
 }
