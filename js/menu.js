@@ -94,11 +94,6 @@ function startMenu() {
 	ctx.drawImage(newGameImg,400,240);
 	ctx.drawImage(soundOn, 1060, 35);
 	ctx.drawImage(shopButton,400, 400);
-	ctx.font = '20px Arial';
-	ctx.fillStyle = 'red';
-	ctx.textAlign = 'start';
-	ctx.fillText("The shop is mega-alpha and far from feature complete", 300, 100);
-	ctx.fillText("a.k.a. it doesn't work yet.", 380, 140);
 	
 	$("#map").click(function(e){
 	var x = Math.floor((e.pageX-$("#map").offset().left));
