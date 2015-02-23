@@ -50,7 +50,7 @@ var hintsOn = new Image();
 var hintsOff = new Image();
 var zombie2Img = new Image();
 var zombieCatImg = new Image();
-var level = "LEVEL 1";
+var level = 1;
 var levelCounter = 0;
 var heroSKS = new Image();
 var subIcon = new Image();
@@ -59,6 +59,7 @@ var subCDIcon = new Image();
 var subCounter = 0;
 var subCD = 0;
 var subHero = new Image();
+var levelTimer;
 
 subHero.src = 'img/heroShock.png';
 subIcon.src = 'img/subIcon.png';
@@ -118,27 +119,45 @@ var zombieNum = 0;
 
 //Create zombie
 function createZombie() {
-	var zombieRoll = randomInt(1,4);
-	if(zombieRoll>2) {
+	if(level<3){
 		zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 90, 25, 1, 180);
 		zombieNum++;
-	} else if (zombieRoll == 2) {
-		zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 180, 15, 2, 190);
-		zombieNum++;
-	} else {
-		zombies[zombieNum] = new zombie(1100,randomInt(50, 400),false, 0, 20, 55, 3, 100);
-		zombieNum++;
-}
+		
+	} else if(level>=3) {
+		var zombieRoll = randomInt(1,4);
+		if(zombieRoll>2) {
+			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 90, 25, 1, 180);
+			zombieNum++;
+		} else if (zombieRoll == 2) {
+			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 180, 15, 2, 190);
+			zombieNum++;
+		} else {
+			zombies[zombieNum] = new zombie(1100,randomInt(50, 400),false, 0, 20, 55, 3, 100);
+			zombieNum++;
+		}
+
+	}
 }
 
 
 //Initial function to set shit up
 function init() {
+	zombieNum = 0;
+	zombies = [];
+	bulletNum = 0;
+	bullets = [];
+	kickCD = 0;
+	guns[activeGun].ammo = guns[activeGun].maxAmmo;
 	ctx.drawImage(map, 0, 0);
 	ctx.drawImage(heroG26, 30,200);
 	levelCounter = 500;
+	levelTimer = 5000 + level*500;
 	gameLoop = setInterval(doGameLoop, 1);
-	zombieLoop = setInterval(doZombieLoop, 3500);
+	if(level<30) {
+		zombieLoop = setInterval(doZombieLoop, 3500-level*100);
+	} else {
+		zombieLoop = setInterval(doZombieLoop, 300);
+	}
 	//clearInterval() will stop setInterval
 	
 	window.addEventListener('keydown', whatKeyDown, true);
@@ -192,7 +211,7 @@ function doGameLoop() {
 				}
 			} else if (zombies[j].x < heroX + 250 && zombies[j].y + zombies[j].height + 50 > heroY && zombies[j].y < heroY + 200 && kickCounter > 0) {
 				zombies[j].dead = true;
-				money = money + randomInt(1,12);
+				money = money + randomInt(3 + level, 18 + level);
 			}
 				
 			if(zombies[j].x <= 50) {
@@ -253,8 +272,8 @@ function doGameLoop() {
 						document.getElementById("catKill").play();
 					}
 				}
-				if(randomInt(1,6)>2) { //roll 1d6 and get money on 3, 4, 5, or 6
-					money = money + randomInt(2,12);
+				if(randomInt(1,6)>1) { //roll 1d6 and get money on 2, 3, 4, 5, or 6
+					money += randomInt(3+level,level+18);
 				}
 			} else {
 				zombies[j].hp = zombies[j].hp - randomInt(guns[activeGun].damage-8, guns[activeGun].damage+8); //this damage should be a variable to account for different guns later
@@ -313,7 +332,7 @@ function doGameLoop() {
 		ctx.font = '10px arial';
 		ctx.strokeStyle = 'white';
 		ctx.strokeText("click to turn hints off", 1060, 20);
-		ctx.strokeText("use spacebar to shoot", 550, 20);
+		ctx.strokeText("use spacebar to shoot", 740, 20);
 		ctx.strokeText("press Esc to pause", 250, 20);
 		ctx.strokeText("click to toggle sound", 1060, 60);
 		ctx.strokeText("press the number of the gun you want to use", 230, 65);
@@ -332,7 +351,8 @@ function doGameLoop() {
 		ctx.textAlign="center"; 
 		ctx.font = '60px courier';
 		ctx.fillStyle = 'red';
-		ctx.fillText(level,550,300);
+		ctx.fillText("LEVEL",500,300);
+		ctx.fillText(level,620,300);
 		levelCounter--;
 	}
 	
@@ -386,6 +406,22 @@ function doGameLoop() {
 		ctx.fillText(i+1,24,85+75*i);
 		}
 	}
+	if(levelTimer > 0) {
+		ctx.textAlign="center"; 
+		ctx.font = "30px Arial";
+		ctx.fillStyle = 'black';
+		ctx.fillText(((levelTimer/1000)*10).toFixed(2),550,40);
+		levelTimer--;
+	} else {
+		clearInterval(gameLoop);
+		clearInterval(zombieLoop);
+		ctx.font = '60px courier';
+		ctx.fillStyle = 'red';
+		ctx.fillText("LEVEL COMPLETE",550,300);
+		setTimeout(shop, 1400);
+		level++;
+	}
+	
 	
 }
 

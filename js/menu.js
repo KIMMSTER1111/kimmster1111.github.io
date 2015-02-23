@@ -39,7 +39,7 @@ var sounds = true;
 var soundOn = new Image();
 var soundOff = new Image();
 var soundStorage = true; //remembers if sound was on before pausing
-var money = 1200;
+var money = 0;
 var maxHealth = 3;
 var health = 3;
 var started = false;
@@ -93,13 +93,14 @@ function startMenu() {
 	ctx.drawImage(bgImg,0,0);
 	ctx.drawImage(newGameImg,400,240);
 	ctx.drawImage(soundOn, 1060, 35);
-	ctx.drawImage(shopButton,400, 400);
+	//ctx.drawImage(shopButton,400, 400);
+	
+	shopInit();
 	
 	$("#map").click(function(e){
 	var x = Math.floor((e.pageX-$("#map").offset().left));
 	var y = Math.floor((e.pageY-$("#map").offset().top));
 	
-	console.log(x,y);
 	
 	if(x>418 && x < 600 && y >240 && y < 355 && started==false) {
 		started = true;
@@ -115,10 +116,10 @@ function startMenu() {
 		setTimeout(init, 12000);
 	}
 	
-	if(x>418&&x<600 && y> 400 && y < 515 && started==false) {
-		started = true;
-		shop();
-	}
+	//if(x>418&&x<600 && y> 400 && y < 515 && started==false) {
+	//	started = true;
+	//	shop();
+	//}
 	
 	if(x>1060 && x < 1100 && y >0 && y < 30 && started) {
 		if(hints) {

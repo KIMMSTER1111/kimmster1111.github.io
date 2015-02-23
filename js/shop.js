@@ -17,8 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 
-var c = document.getElementById("map");
-var ctx = c.getContext("2d");
 var shopImg = new Image();
 var shopGun = new Image();
 var shopHealth = new Image();
@@ -41,16 +39,7 @@ shopImg.src = 'img/shop.png';
 moneyBackImg.src = 'img/moneyBack.png';
 subsonicImg.src = 'img/stereo.png';
 
-function shop() {
-	inShop = true;
-	highlighted = false;
-	ctx.drawImage(shopImg,0,0);
-	ctx.drawImage(moneyBackImg, 30, 15);
-	ctx.font = "20px Arial";
-	ctx.fillStyle = 'green';
-	ctx.textAlign="end"; 
-	ctx.fillText("$", 50, 40);
-	ctx.fillText(money, 120, 40);
+function shopInit() {
 	$("#map").mousemove(function(e){
 		var mouseX = Math.floor((e.pageX-$("#map").offset().left));
 		var mouseY = Math.floor((e.pageY-$("#map").offset().top));
@@ -297,6 +286,19 @@ $("#map").click(function(e){
 		displayFunkDialog();
 	}
 } );
+}
+
+function shop() {
+	inShop = true;
+	highlighted = false;
+	ctx.drawImage(shopImg,0,0);
+	ctx.drawImage(moneyBackImg, 30, 15);
+	ctx.font = "20px Arial";
+	ctx.fillStyle = 'green';
+	ctx.textAlign="end"; 
+	ctx.fillText("$", 50, 40);
+	ctx.fillText(money, 120, 40);
+	
 }
 
 function displayGunDialog() {
