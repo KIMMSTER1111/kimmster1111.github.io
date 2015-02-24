@@ -29,7 +29,9 @@ var inShop = false;
 var shopPaper = new Image();
 var moneyBackImg = new Image();
 var subsonicImg = new Image();
+var extraHeartImg = new Image();
 
+extraHeartImg.src = 'img/extraHeart.png';
 shopPaper.src = 'img/shopPaper.png';
 shopHealth.src = 'img/shop-healthHighlight.png';
 shopDJ.src = 'img/shop-djHighlight.png';
@@ -49,6 +51,12 @@ function shopInit() {
 		if(mouseX>110&&mouseX<210&&mouseY>30&&mouseY<360 && inShop) { //draw shop
 			ctx.drawImage(shopGun,0,0);
 			ctx.drawImage(moneyBackImg, 30, 15);
+			for(i=0;i<health;i++) {
+				ctx.drawImage(heartImg, 20 + 30*i, 550);
+			}
+			for(i=health;i<maxHealth;i++) {
+				ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
+			}
 			ctx.font = "20px Arial";
 			ctx.fillStyle = 'green';
 			ctx.textAlign="end"; 
@@ -58,6 +66,12 @@ function shopInit() {
 		} else if(mouseX>405&&mouseX<635&&mouseY>220&&mouseY<510 && inShop) {
 			ctx.drawImage(shopHealth,0,0);
 			ctx.drawImage(moneyBackImg, 30, 15);
+			for(i=0;i<health;i++) {
+				ctx.drawImage(heartImg, 20 + 30*i, 550);
+			}
+			for(i=health;i<maxHealth;i++) {
+				ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
+			}
 			ctx.font = "20px Arial";
 			ctx.fillStyle = 'green';
 			ctx.textAlign="end"; 
@@ -67,6 +81,12 @@ function shopInit() {
 		} else if(mouseX>750&&mouseY>10&&mouseY<210 && inShop) {
 			ctx.drawImage(shopDJ,0,0);
 			ctx.drawImage(moneyBackImg, 30, 15);
+			for(i=0;i<health;i++) {
+				ctx.drawImage(heartImg, 20 + 30*i, 550);
+			}
+			for(i=health;i<maxHealth;i++) {
+				ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
+			}
 			ctx.font = "20px Arial";
 			ctx.fillStyle = 'green';
 			ctx.textAlign="end"; 
@@ -76,6 +96,12 @@ function shopInit() {
 		} else if(mouseX>270&&mouseX<400&&mouseY>100&&mouseY<208&&inShop) {
 			ctx.drawImage(shopDoors,0,0);
 			ctx.drawImage(moneyBackImg, 30, 15);
+			for(i=0;i<health;i++) {
+				ctx.drawImage(heartImg, 20 + 30*i, 550);
+			}
+			for(i=health;i<maxHealth;i++) {
+				ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
+			}
 			ctx.font = "20px Arial";
 			ctx.fillStyle = 'green';
 			ctx.textAlign="end"; 
@@ -85,6 +111,12 @@ function shopInit() {
 		} else if(highlighted && inShop) {
 			ctx.drawImage(shopImg,0,0);
 			ctx.drawImage(moneyBackImg, 30, 15);
+			for(i=0;i<health;i++) {
+				ctx.drawImage(heartImg, 20 + 30*i, 550);
+			}
+			for(i=health;i<maxHealth;i++) {
+				ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
+			}
 			ctx.font = "20px Arial";
 			ctx.fillStyle = 'green';
 			ctx.textAlign="end"; 
@@ -93,10 +125,16 @@ function shopInit() {
 			highlighted = false;
 		}
 		
-		if(mouseX>370&&mouseX<700&&mouseY>54&&mouseY<82&&healthDialogOpen) { //extra heart selected
+		if(mouseX>370&&mouseX<700&&mouseY>54&&mouseY<82&&healthDialogOpen) { //health selected
 			if(highlighted==false) {
 				ctx.drawImage(gunSelectedImg, 370, 40);
 				ctx.drawImage(heartImg, 400, 60);
+				highlighted = true;
+			}
+		} else if(mouseX>370&&mouseX<700&&mouseY>315&&mouseY<365&&healthDialogOpen) { //extra heart selected
+			if(highlighted==false) {
+				ctx.drawImage(gunSelectedImg, 370, 308);
+				ctx.drawImage(extraHeartImg, 400, 322);
 				highlighted = true;
 			}
 		} else if(highlighted && healthDialogOpen) {
@@ -209,7 +247,19 @@ $("#map").click(function(e){
 		init();
 	}
 	
-	if(x>370&&x<700&&y>54&&y<82&&healthDialogOpen) { //heart clicked
+	if(x>370&&x<700&&y>54&&y<82&&healthDialogOpen) { //heal clicked
+		if(health==maxHealth) {
+			alert("you don't need to be healed!"); //alerts suck, this should display some sexy pngs
+		} else if(money<50) { //insufficient funds
+			alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
+		} else { //purchase successful
+			money = money - 50;
+			health = maxHealth;
+			displayHealthDialog();
+		}
+	}
+	
+	if(x>370&&x<700&&y>315&&y<365&&healthDialogOpen) { //health upgrade clicked
 		if(money<(300*maxHealth)) { //insufficient funds
 			alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
 		} else { //purchase successful
@@ -298,7 +348,12 @@ function shop() {
 	ctx.textAlign="end"; 
 	ctx.fillText("$", 50, 40);
 	ctx.fillText(money, 120, 40);
-	
+	for(i=0;i<health;i++) {
+		ctx.drawImage(heartImg, 20 + 30*i, 550);
+	}
+	for(i=health;i<maxHealth;i++) {
+		ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
+	}
 }
 
 function displayGunDialog() {
@@ -338,6 +393,13 @@ function displayGunDialog() {
 	ctx.textAlign="end"; 
 	ctx.fillText("$", 50, 40);
 	ctx.fillText(money, 120, 40);
+	
+	for(i=0;i<health;i++) {
+		ctx.drawImage(heartImg, 20 + 30*i, 550);
+	}
+	for(i=health;i<maxHealth;i++) {
+		ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
+	}
 }
 
 function displayHealthDialog() {
@@ -345,12 +407,18 @@ function displayHealthDialog() {
 	ctx.font = '12px Arial';
 	ctx.fillStyle = 'black';
 	ctx.textAlign = 'start';
-	ctx.fillText("Upgrades", 530, 50);
+	ctx.fillText("Heal", 530, 50);
+	ctx.fillText("Upgrades", 527, 310);
 	ctx.drawImage(heartImg, 400, 60);
-	ctx.fillText("Extra Heart - Increase the damage you can take", 445, 70);
-	ctx.fillText("before dying.", 445, 85);
+	ctx.fillText("Full Heal - Recover all lost hearts.", 445, 74);
 	ctx.fillText("$", 385, 100);	
-	ctx.fillText(300*maxHealth, 405, 100);
+	ctx.fillText(50, 405, 100);
+	
+	ctx.drawImage(extraHeartImg, 400, 322);
+	ctx.fillText("Extra Heart - Increase your ability to", 445, 335);
+	ctx.fillText("take damage in battle.", 445, 350);
+	ctx.fillText("$", 385, 360);	
+	ctx.fillText(300*maxHealth, 405, 360);
 	
 	ctx.drawImage(moneyBackImg, 30, 15);
 	ctx.font = "20px Arial";
@@ -358,6 +426,13 @@ function displayHealthDialog() {
 	ctx.textAlign="end"; 
 	ctx.fillText("$", 50, 40);
 	ctx.fillText(money, 120, 40);
+	
+	for(i=0;i<health;i++) {
+		ctx.drawImage(heartImg, 20 + 30*i, 550);
+	}
+	for(i=health;i<maxHealth;i++) {
+		ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
+	}
 }
 
 function displayFunkDialog() {
@@ -382,4 +457,11 @@ function displayFunkDialog() {
 	ctx.textAlign="end"; 
 	ctx.fillText("$", 50, 40);
 	ctx.fillText(money, 120, 40);
+	
+	for(i=0;i<health;i++) {
+		ctx.drawImage(heartImg, 20 + 30*i, 550);
+	}
+	for(i=health;i<maxHealth;i++) {
+		ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
+	}
 }

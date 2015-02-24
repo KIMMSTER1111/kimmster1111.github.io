@@ -152,9 +152,10 @@ function init() {
 	ctx.drawImage(heroG26, 30,200);
 	levelCounter = 500;
 	levelTimer = 5000 + level*500;
+	createZombie;
 	gameLoop = setInterval(doGameLoop, 1);
-	if(level<30) {
-		zombieLoop = setInterval(doZombieLoop, 3500-level*100);
+	if(level<12) {
+		zombieLoop = setInterval(doZombieLoop, 3500-level*270);
 	} else {
 		zombieLoop = setInterval(doZombieLoop, 300);
 	}
