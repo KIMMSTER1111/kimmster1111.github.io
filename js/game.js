@@ -60,7 +60,11 @@ var subCounter = 0;
 var subCD = 0;
 var subHero = new Image();
 var levelTimer;
+var zombie3 = new Image();
+var zombie35 = new Image();
 
+zombie3.src = 'img/zombie3.png';
+zombie35.src = 'img/zombie3.5.png';
 subHero.src = 'img/heroShock.png';
 subIcon.src = 'img/subIcon.png';
 subCDIcon.src = 'img/subIconCD.png';
@@ -120,22 +124,37 @@ var zombieNum = 0;
 //Create zombie
 function createZombie() {
 	if(level<3){
-		zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 90, 25, 1, 180);
+		zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 100, 30, 1, 180);
 		zombieNum++;
 		
-	} else if(level>=3) {
-		var zombieRoll = randomInt(1,4);
+	} else if(level>=3 && level < 5) {
+		var zombieRoll = randomInt(1,5);
 		if(zombieRoll>2) {
-			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 90, 25, 1, 180);
+			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 100, 30, 1, 180);
 			zombieNum++;
 		} else if (zombieRoll == 2) {
-			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 180, 15, 2, 190);
+			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 200, 15, 2, 190);
 			zombieNum++;
-		} else {
-			zombies[zombieNum] = new zombie(1100,randomInt(50, 400),false, 0, 20, 55, 3, 100);
+		} else if(zombieRoll == 1) {
+			zombies[zombieNum] = new zombie(1100,randomInt(50, 400),false, 0, 20, 75, 3, 100);
 			zombieNum++;
 		}
 
+	} else {
+		var zombieRoll = randomInt(1,5);
+		if(zombieRoll>3) {
+			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 100, 30, 1, 180);
+			zombieNum++;
+		} else if (zombieRoll == 2) {
+			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 200, 15, 2, 190);
+			zombieNum++;
+		} else if(zombieRoll == 3) {
+			zombies[zombieNum] = new zombie(1100,randomInt(50, 400),false, 0, 20, 75, 3, 100);
+			zombieNum++;
+		} else {
+			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 250, 10, 4, 190);
+			zombieNum++;
+		}
 	}
 }
 
@@ -233,8 +252,12 @@ function doGameLoop() {
 				ctx.drawImage(zombie1Img, zombies[j].x, zombies[j].y);
 			} else if(zombies[j].type ==2) {
 				ctx.drawImage(zombie2Img, zombies[j].x, zombies[j].y);
-			} else {
+			} else if(zombies[j].type==3) {
 				ctx.drawImage(zombieCatImg, zombies[j].x, zombies[j].y);
+			} else if(zombies[j].type==4) {
+				ctx.drawImage(zombie3, zombies[j].x, zombies[j].y);
+			} else if(zombies[j].type==5) {
+				ctx.drawImage(zombie35, zombies[j].x, zombies[j].y);
 			}
 		} else {
 			if(zombies[j].rot < 1000) {
@@ -263,6 +286,11 @@ function doGameLoop() {
 			bullets[i].exists = false;
 			ctx.drawImage(blood, zombies[j].x  + 50, bullets[i].y); //this should probably exist for longer than 1ms
 			if(zombies[j].hp <= 0) {
+				if(zombies[j].type==4) {
+					zombies[j].type=5;
+					zombies[j].hp=145;
+					zombies[j].speed=60;
+				} else {
 				zombies[j].dead = true;
 				if(sounds) {
 					if(zombies[j].type != 3) {
@@ -275,6 +303,7 @@ function doGameLoop() {
 				}
 				if(randomInt(1,6)>1) { //roll 1d6 and get money on 2, 3, 4, 5, or 6
 					money += randomInt(3+level,level+18);
+				}
 				}
 			} else {
 				zombies[j].hp = zombies[j].hp - randomInt(guns[activeGun].damage-8, guns[activeGun].damage+8); //this damage should be a variable to account for different guns later
