@@ -30,7 +30,11 @@ var shopPaper = new Image();
 var moneyBackImg = new Image();
 var subsonicImg = new Image();
 var extraHeartImg = new Image();
+var kickUpgradeImg = new Image();
+var subUpgradeImg = new Image();
 
+kickUpgradeImg.src = 'img/kickUpgradeIcon.png';
+subUpgradeImg.src = 'img/subUpgradeIcon.png';
 extraHeartImg.src = 'img/extraHeart.png';
 shopPaper.src = 'img/shopPaper.png';
 shopHealth.src = 'img/shop-healthHighlight.png';
@@ -152,7 +156,20 @@ function shopInit() {
 					highlighted = true;
 				}
 			}
-		} else if(highlighted && funkDialogOpen) {
+		} else if(mouseX>374&&mouseX<700&&mouseY>325&&mouseY<405&&funkDialogOpen) {
+			if(highlighted==false) {
+				ctx.drawImage(gunSelectedImg, 367, 318);
+				ctx.drawImage(kickUpgradeImg, 370,325);
+				highlighted = true;
+			}
+		} else if(mouseX>374&&mouseX<700&&mouseY>410&&mouseY<505&&funkDialogOpen) {
+			if(highlighted==false && subsonicUnlocked) {
+				ctx.drawImage(gunSelectedImg, 367, 405);
+				ctx.drawImage(subUpgradeImg, 370, 410);
+				highlighted = true;
+			}
+		
+		}else if(highlighted && funkDialogOpen) {
 			highlighted = false;
 			displayFunkDialog();
 			
@@ -274,11 +291,32 @@ $("#map").click(function(e){
 	if(x>375&&x<700&&y>54&&y<112&&funkDialogOpen) { 
 		if(subsonicUnlocked) {
 			alert("you already bought this, bitch!"); //alerts suck, this should display some sexy pngs
-		} else if(money<900) {
+		} else if(money<750) {
 			alert("come back with some more money, puta"); //alerts suck, this should display some sexy pngs
 		} else {
-			money = money - 900;
+			money = money - 750;
 			subsonicUnlocked = true;
+			displayFunkDialog();
+		}
+	}
+	if(x>374&&x<700&&y>325&&y<405&&funkDialogOpen) {
+		if(money<500) {
+			alert("you can't afford this, cyka"); //alerts suck, this should display some sexy pngs
+		} else {
+			money = money - 500;
+			kickMaxCD = kickMaxCD / 2;
+			displayFunkDialog();
+		}
+	}
+	
+	if(x>374&&x<700&&y>410&&y<505&&funkDialogOpen) {
+		if(subsonicUnlocked == false) {
+			alert("you gotta unlock Subsonic Shockwave before you can upgrade it!");
+		} else if(money<500) {
+			alert("you can't afford this, cyka"); //alerts suck, this should display some sexy pngs
+		} else {
+			money = money - 500;
+			subMaxCD = subMaxCD / 2;
 			displayFunkDialog();
 		}
 	}
@@ -442,7 +480,10 @@ function displayFunkDialog() {
 	ctx.fillStyle = 'black';
 	ctx.textAlign = 'start';
 	ctx.fillText("Abilities", 530, 50);
+	ctx.fillText("Upgrades", 527, 310);
 	ctx.drawImage(subsonicImg, 370, 40);
+	ctx.drawImage(kickUpgradeImg, 370, 325);
+	ctx.drawImage(subUpgradeImg, 370, 410);
 	if(subsonicUnlocked) {
 		ctx.fillStyle = 'gray';
 	} else {
@@ -450,7 +491,21 @@ function displayFunkDialog() {
 	}
 	ctx.fillText("Subsonic Shockwave - Push back zombies with", 445, 80);
 	ctx.fillText("some bass from your sound system.", 445, 95);
-	ctx.fillText("$900", 395, 120);	
+	ctx.fillText("$750", 395, 120);	
+	
+	ctx.fillStyle = 'black';
+	ctx.fillText("Reduce Kick Cooldown - Use Disco Kick", 445, 350);
+	ctx.fillText("twice as frequently.", 445, 365);
+	ctx.fillText("$500", 385, 400);	
+	
+	if(subsonicUnlocked) {
+		ctx.fillStyle = 'black';
+	} else {
+		ctx.fillStyle = 'gray';
+	}
+	ctx.fillText("Reduce Sub Shock Cooldown - Use Sub Shock", 445, 435);
+	ctx.fillText("twice as frequently.", 445, 450);
+	ctx.fillText("$500", 385, 490);	
 	
 	ctx.drawImage(moneyBackImg, 30, 15);
 	ctx.font = "20px Arial";

@@ -40,6 +40,7 @@ var emptyCart9mmImg = new Image();
 var reloadCounter = 0;
 var kickCounter = 0;
 var kickCD = 0;
+var maxKickCD = 2000;
 var kickImg = new Image();
 var kickIcon = new Image();
 var kickCDIcon = new Image();
@@ -58,6 +59,7 @@ var subIcon = new Image();
 var subCDIcon = new Image();
 var subCounter = 0;
 var subCD = 0;
+var maxSubCD = 2000;
 var subHero = new Image();
 var levelTimer;
 var zombie3 = new Image();
@@ -649,14 +651,14 @@ function drawHero() {
 		kickCounter--;
 	} else if(kickCounter == 1) { //end kick
 		ctx.drawImage(kickImg,heroX,heroY);
-		kickCD = 2000;
+		kickCD = maxKickCD;
 		kickCounter--;
 	} else if(subCounter > 1) { //currently shocking
 		ctx.drawImage(subHero, heroX, heroY);
 		subCounter--;
 	} else if(subCounter == 1) { //end shock
 		ctx.drawImage(subHero, heroX, heroY);
-		subCD = 2000;
+		subCD = maxSubCD;
 		subCounter--;
 	}
 	if(kickCD > 0) {

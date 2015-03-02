@@ -114,6 +114,7 @@ function startMenu() {
 		guns[1].active = false;
 		activeGun = 0;
 		level =1;
+		subUnlocked = false;
 		ctx.drawImage(intro1, 300, 0);
 		setTimeout(function(){ ctx.drawImage(intro2, 300, 0); }, 1500);
 		setTimeout(function(){ ctx.drawImage(grayImg,0,0); ctx.drawImage(intro3, 390, 130); }, 3000);
