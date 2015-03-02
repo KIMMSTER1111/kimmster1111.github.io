@@ -91,7 +91,7 @@ function startMenu() {
 	guns[1] = new gun("SKS",10,10, 40, "semi", false, false, 650);
 	
 	ctx.drawImage(bgImg,0,0);
-	ctx.drawImage(newGameImg,400,240);
+	ctx.drawImage(newGameImg,400,340);
 	ctx.drawImage(soundOn, 1060, 35);
 	//ctx.drawImage(shopButton,400, 400);
 	
@@ -102,8 +102,18 @@ function startMenu() {
 	var y = Math.floor((e.pageY-$("#map").offset().top));
 	
 	
-	if(x>418 && x < 600 && y >240 && y < 355 && started==false) {
+	if(x>418 && x < 600 && y >340 && y < 455 && started==false) {
 		started = true;
+		money = 0;
+		health = 3;
+		maxHealth =3;
+		guns[0].maxAmmo = 10;
+		guns[1].maxAmmo = 10;
+		guns[1].purchased = false;
+		guns[0].active = true;
+		guns[1].active = false;
+		activeGun = 0;
+		level =1;
 		ctx.drawImage(intro1, 300, 0);
 		setTimeout(function(){ ctx.drawImage(intro2, 300, 0); }, 1500);
 		setTimeout(function(){ ctx.drawImage(grayImg,0,0); ctx.drawImage(intro3, 390, 130); }, 3000);

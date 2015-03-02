@@ -124,32 +124,32 @@ var zombieNum = 0;
 //Create zombie
 function createZombie() {
 	if(level<3){
-		zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 100, 30, 1, 180);
+		zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 90, 30, 1, 180);
 		zombieNum++;
 		
-	} else if(level>=3 && level < 5) {
+	} else if(level>=3 && level <= 5) {
 		var zombieRoll = randomInt(1,5);
 		if(zombieRoll>2) {
-			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 100, 30, 1, 180);
+			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 90, 30, 1, 180);
 			zombieNum++;
 		} else if (zombieRoll == 2) {
 			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 200, 15, 2, 190);
 			zombieNum++;
 		} else if(zombieRoll == 1) {
-			zombies[zombieNum] = new zombie(1100,randomInt(50, 400),false, 0, 20, 75, 3, 100);
+			zombies[zombieNum] = new zombie(1100,randomInt(50, 400),false, 0, 30, 75, 3, 100);
 			zombieNum++;
 		}
 
 	} else {
 		var zombieRoll = randomInt(1,5);
 		if(zombieRoll>3) {
-			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 100, 30, 1, 180);
+			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 90, 30, 1, 180);
 			zombieNum++;
 		} else if (zombieRoll == 2) {
 			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 200, 15, 2, 190);
 			zombieNum++;
 		} else if(zombieRoll == 3) {
-			zombies[zombieNum] = new zombie(1100,randomInt(50, 400),false, 0, 20, 75, 3, 100);
+			zombies[zombieNum] = new zombie(1100,randomInt(50, 400),false, 0, 30, 75, 3, 100);
 			zombieNum++;
 		} else {
 			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 250, 10, 4, 190);
@@ -401,6 +401,8 @@ function doGameLoop() {
 		ctx.textAlign="center"; 
 		ctx.strokeStyle = 'red';
 		ctx.strokeText("You died.",550,300);
+		ctx.drawImage(newGameImg,400,340);
+		started = false;
 		if(sounds) {
 			document.getElementById("death").play();
 		}

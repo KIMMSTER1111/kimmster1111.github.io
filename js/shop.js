@@ -42,6 +42,7 @@ moneyBackImg.src = 'img/moneyBack.png';
 subsonicImg.src = 'img/stereo.png';
 
 function shopInit() {
+	highlighted = false;
 	$("#map").mousemove(function(e){
 		var mouseX = Math.floor((e.pageX-$("#map").offset().left));
 		var mouseY = Math.floor((e.pageY-$("#map").offset().top));
@@ -260,10 +261,10 @@ $("#map").click(function(e){
 	}
 	
 	if(x>370&&x<700&&y>315&&y<365&&healthDialogOpen) { //health upgrade clicked
-		if(money<(300*maxHealth)) { //insufficient funds
+		if(money<(200*maxHealth)) { //insufficient funds
 			alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
 		} else { //purchase successful
-			money = money - (300*maxHealth);
+			money = money - (200*maxHealth);
 			maxHealth = maxHealth + 1;
 			health = health + 1;
 			displayHealthDialog();
@@ -273,10 +274,10 @@ $("#map").click(function(e){
 	if(x>375&&x<700&&y>54&&y<112&&funkDialogOpen) { 
 		if(subsonicUnlocked) {
 			alert("you already bought this, bitch!"); //alerts suck, this should display some sexy pngs
-		} else if(money<1200) {
+		} else if(money<900) {
 			alert("come back with some more money, puta"); //alerts suck, this should display some sexy pngs
 		} else {
-			money = money - 1200;
+			money = money - 900;
 			subsonicUnlocked = true;
 			displayFunkDialog();
 		}
@@ -418,7 +419,7 @@ function displayHealthDialog() {
 	ctx.fillText("Extra Heart - Increase your ability to", 445, 335);
 	ctx.fillText("take damage in battle.", 445, 350);
 	ctx.fillText("$", 385, 360);	
-	ctx.fillText(300*maxHealth, 405, 360);
+	ctx.fillText(200*maxHealth, 405, 360);
 	
 	ctx.drawImage(moneyBackImg, 30, 15);
 	ctx.font = "20px Arial";
@@ -449,7 +450,7 @@ function displayFunkDialog() {
 	}
 	ctx.fillText("Subsonic Shockwave - Push back zombies with", 445, 80);
 	ctx.fillText("some bass from your sound system.", 445, 95);
-	ctx.fillText("$1200", 395, 120);	
+	ctx.fillText("$900", 395, 120);	
 	
 	ctx.drawImage(moneyBackImg, 30, 15);
 	ctx.font = "20px Arial";
