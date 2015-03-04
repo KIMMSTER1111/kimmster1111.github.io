@@ -89,6 +89,7 @@ var guns = [];
 function startMenu() {
 	guns[0] = new gun("G26",10, 10, 18, "semi", true, true, 500);
 	guns[1] = new gun("SKS",10,10, 40, "semi", false, false, 650);
+	guns[2] = new gun("870",4,4,25, "pump", false, false, 800);
 	
 	ctx.drawImage(bgImg,0,0);
 	ctx.drawImage(newGameImg,400,340);

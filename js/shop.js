@@ -148,7 +148,7 @@ function shopInit() {
 			
 		}
 		
-		if(mouseX>375&&mouseX<700&&mouseY>54&&mouseY<112&&funkDialogOpen) { 
+		if(mouseX>375&&mouseX<700&&mouseY>54&&mouseY<112&&funkDialogOpen) { //subsonic shockwave selected
 			if(highlighted==false) {
 				if(subsonicUnlocked==false) {
 					ctx.drawImage(gunSelectedImg, 370, 40);
@@ -156,13 +156,13 @@ function shopInit() {
 					highlighted = true;
 				}
 			}
-		} else if(mouseX>374&&mouseX<700&&mouseY>325&&mouseY<405&&funkDialogOpen) {
+		} else if(mouseX>374&&mouseX<700&&mouseY>325&&mouseY<405&&funkDialogOpen) { //kick CD upgrade highlighted
 			if(highlighted==false) {
 				ctx.drawImage(gunSelectedImg, 367, 318);
 				ctx.drawImage(kickUpgradeImg, 370,325);
 				highlighted = true;
 			}
-		} else if(mouseX>374&&mouseX<700&&mouseY>410&&mouseY<505&&funkDialogOpen) {
+		} else if(mouseX>374&&mouseX<700&&mouseY>410&&mouseY<505&&funkDialogOpen) { //sub CD upgrade highlighted
 			if(highlighted==false && subsonicUnlocked) {
 				ctx.drawImage(gunSelectedImg, 367, 405);
 				ctx.drawImage(subUpgradeImg, 370, 410);
@@ -194,6 +194,15 @@ function shopInit() {
 					ctx.fillText("SKS - 30 round magazines.", 445, 420);
 					ctx.fillText("$400", 410, 440);
 				}
+			}
+		} else if(mouseX>370&&mouseX<700&&mouseY>90&&mouseY<186&&gunDialogOpen&&guns[2].purchased==false) { //870 highlighted
+			if(highlighted==false) {
+				ctx.drawImage(gunSelectedImg, 370, 100);
+				ctx.drawImage(r870Img, 370, 105);
+				ctx.fillText("Remington 870 - small magazine, slow reload speed.", 435, 140);
+				ctx.fillText("00 buckshot spreads and can hit multiple targets.", 435, 155);
+				ctx.fillText("$600", 396, 175);
+				highlighted=true;
 			}
 		} else if(mouseX>385&&mouseX<685&&mouseY>315&&mouseY<365&&gunDialogOpen&&guns[0].maxAmmo==10) { //g26 upgrade highlighted
 			ctx.fillStyle = 'black';
@@ -304,7 +313,7 @@ $("#map").click(function(e){
 			alert("you can't afford this, cyka"); //alerts suck, this should display some sexy pngs
 		} else {
 			money = money - 500;
-			kickMaxCD = kickMaxCD / 2;
+			maxKickCD = maxKickCD/2;
 			displayFunkDialog();
 		}
 	}
@@ -316,7 +325,7 @@ $("#map").click(function(e){
 			alert("you can't afford this, cyka"); //alerts suck, this should display some sexy pngs
 		} else {
 			money = money - 500;
-			subMaxCD = subMaxCD / 2;
+			maxSubCD = maxSubCD/2;
 			displayFunkDialog();
 		}
 	}
@@ -332,7 +341,17 @@ $("#map").click(function(e){
 			displayGunDialog();
 		}
 	}
-	
+	if(x>370&&x<700&&y>90&&y<186&&gunDialogOpen) { //870 clicked
+		if(guns[2].purchased) {
+			alert("you already own this!");
+		} else if(money<600) {
+			alert("you ain't got enough cheese, biznatch!");
+		} else {
+			money = money - 600;
+			guns[2].purchased = true;
+			displayGunDialog();
+		}
+	}
 	if(x>385&&x<685&&y>315&&y<365&&gunDialogOpen) { //g26 upgrade clicked
 		if(guns[0].maxAmmo==33) { //already owned
 			alert("you have already purchased this upgrade!"); //alerts suck, this should display some sexy pngs
@@ -409,6 +428,16 @@ function displayGunDialog() {
 	ctx.fillText("SKS - medium clip size, medium reload speed,", 445, 70);
 	ctx.fillText("high damage.", 445, 85);
 	ctx.fillText("$400", 400, 100);	
+	if(guns[2].purchased) {
+		ctx.fillStyle = 'gray';
+	} else {
+		ctx.fillStyle = 'black';
+	}
+	ctx.drawImage(r870Img, 370, 105);
+	ctx.fillText("Remington 870 - small magazine, slow reload speed.", 435, 140);
+	ctx.fillText("00 buckshot spreads and can hit multiple targets.", 435, 155);
+	ctx.fillText("$600", 396, 175);
+	
 	if(guns[0].maxAmmo!=10) {
 		ctx.fillStyle = 'gray';
 	} else{

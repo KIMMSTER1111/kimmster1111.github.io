@@ -64,7 +64,19 @@ var subHero = new Image();
 var levelTimer;
 var zombie3 = new Image();
 var zombie35 = new Image();
+var shot = [];
+var shotImg = new Image();
+var r870Img = new Image();
+var hero870 = new Image();
+var shell12 = new Image();
+var shell12empty = new Image();
+var pumpCounter = 0;
 
+shell12.src = 'img/12shell.png';
+shell12empty.src = 'img/12empty.png';
+hero870.src = 'img/hero870.png';
+r870Img.src = 'img/870.png';
+shotImg.src = 'img/shotPellet.png';
 zombie3.src = 'img/zombie3.png';
 zombie35.src = 'img/zombie3.5.png';
 subHero.src = 'img/heroShock.png';
@@ -126,16 +138,16 @@ var zombieNum = 0;
 //Create zombie
 function createZombie() {
 	if(level<3){
-		zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 90, 30, 1, 180);
+		zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 80, 30, 1, 180);
 		zombieNum++;
 		
 	} else if(level>=3 && level <= 5) {
 		var zombieRoll = randomInt(1,5);
 		if(zombieRoll>2) {
-			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 90, 30, 1, 180);
+			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 80, 30, 1, 180);
 			zombieNum++;
 		} else if (zombieRoll == 2) {
-			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 200, 15, 2, 190);
+			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 190, 15, 2, 190);
 			zombieNum++;
 		} else if(zombieRoll == 1) {
 			zombies[zombieNum] = new zombie(1100,randomInt(50, 400),false, 0, 30, 75, 3, 100);
@@ -145,16 +157,16 @@ function createZombie() {
 	} else {
 		var zombieRoll = randomInt(1,5);
 		if(zombieRoll>3) {
-			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 90, 30, 1, 180);
+			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 80, 30, 1, 180);
 			zombieNum++;
 		} else if (zombieRoll == 2) {
-			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 200, 15, 2, 190);
+			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 190, 15, 2, 190);
 			zombieNum++;
 		} else if(zombieRoll == 3) {
 			zombies[zombieNum] = new zombie(1100,randomInt(50, 400),false, 0, 30, 75, 3, 100);
 			zombieNum++;
 		} else {
-			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 250, 10, 4, 190);
+			zombies[zombieNum] = new zombie(1100,randomInt(0, 400),false, 0, 190, 10, 4, 190);
 			zombieNum++;
 		}
 	}
@@ -192,6 +204,9 @@ function init() {
 //Main loop to listen for keypresses and check for collisions, etc
 function doGameLoop() {
 	ctx.drawImage(map, 0,0);
+	if(pumpCounter>0) {
+		pumpCounter--;
+	}
     
     if(guns[activeGun].ammo==0 && reloadCounter < guns[activeGun].reloadSpeed) {
 		reloadCounter = reloadCounter+2;
@@ -207,6 +222,10 @@ function doGameLoop() {
 				case "SKS":
 					document.getElementById("rifleReload").currentTime = 0;
 					document.getElementById("rifleReload").play();
+					break;
+				case "870":
+					document.getElementById("shotgunReload").currentTime = 0;
+					document.getElementById("shotgunReload").play();
 					break;
 			}
 		}
@@ -233,7 +252,7 @@ function doGameLoop() {
 				}
 			} else if (zombies[j].x < heroX + 250 && zombies[j].y + zombies[j].height + 50 > heroY && zombies[j].y < heroY + 200 && kickCounter > 0) {
 				zombies[j].dead = true;
-				money = money + randomInt(3 + level, 18 + level);
+				money = money + randomInt(3 + 2*level, 18 + 2*level);
 			}
 				
 			if(zombies[j].x <= 50) {
@@ -303,9 +322,8 @@ function doGameLoop() {
 						document.getElementById("catKill").play();
 					}
 				}
-				if(randomInt(1,6)>1) { //roll 1d6 and get money on 2, 3, 4, 5, or 6
-					money += randomInt(3+level,level+18);
-				}
+					money += randomInt(3+2*level,2*level+18);
+				
 				}
 			} else {
 				zombies[j].hp = zombies[j].hp - randomInt(guns[activeGun].damage-8, guns[activeGun].damage+8); //this damage should be a variable to account for different guns later
@@ -317,6 +335,77 @@ function doGameLoop() {
 			}
 		}
     }
+	
+	if(shot.length > 0) { //shotgun loop (might blow everything up/slow the game down unacceptably)
+		for(i=0;i<shot.length;i++) {
+			if(shot[i].exists) {
+				ctx.drawImage(shotImg, shot[i].x, shot[i].y);
+				shot[i].x += 15;
+				switch(i) {
+					case 0:
+						shot[i].y = shot[i].y - 4;
+						break;
+					case 1:
+						shot[i].y = shot[i].y - 3;
+						break;
+					case 2:
+						shot[i].y = shot[i].y - 2;
+						break;
+					case 3:
+						shot[i].y = shot[i].y - 1;
+						break;
+					case 5:
+						shot[i].y = shot[i].y + 1;
+						break;
+					case 6:
+						shot[i].y = shot[i].y + 2;
+						break;
+					case 7:
+						shot[i].y = shot[i].y + 3;
+						break;
+					case 8:
+						shot[i].y = shot[i].y + 4;
+						break;
+				}
+				if(shot[i].x > 1100) {
+					shot[i].exists = false;
+					shot.splice(i, 1);
+				}
+				
+				for(j = 0; j < zombies.length; j++) {
+			if(shot[i].x > zombies[j].x && shot[i].y > zombies[j].y && shot[i].y < zombies[j].y + zombies[j].height && shot[i].exists && zombies[j].dead ==false) {
+			shot[i].exists = false;
+			ctx.drawImage(blood, zombies[j].x  + 50, shot[i].y); //this should probably exist for longer than 1ms
+			if(zombies[j].hp <= 0) {
+				if(zombies[j].type==4) {
+					zombies[j].type=5;
+					zombies[j].hp=145;
+					zombies[j].speed=60;
+				} else {
+				zombies[j].dead = true;
+				if(sounds) {
+					if(zombies[j].type != 3) {
+						document.getElementById("kill").currentTime = 0;
+						document.getElementById("kill").play();
+					} else {
+						document.getElementById("catKill").currentTime = 0;
+						document.getElementById("catKill").play();
+					}
+				}
+					money += randomInt(3+level*2,2*level+18);
+				}
+			} else {
+				zombies[j].hp = zombies[j].hp - randomInt(guns[activeGun].damage-8, guns[activeGun].damage+8); //this damage should be a variable to account for different guns later
+			}
+			shot.splice(i, 1);
+			}
+		}
+				
+				
+			}
+		}
+	}
+				//end shotgun loop
 	drawHero();
 	
 		
@@ -331,6 +420,9 @@ function doGameLoop() {
 				case "SKS":
 					ctx.drawImage(cart762Img, 250+(ammoCounter*18), 550);
 					break;
+				case "870":
+					ctx.drawImage(shell12, 250+(ammoCounter*24), 550);
+					break;
 			}
 			ammoCounter++;
 		} else {
@@ -340,6 +432,9 @@ function doGameLoop() {
 					break;
 				case "SKS":
 					ctx.drawImage(emptyCart762Img, 250+(ammoCounter*18), 550);
+					break;
+				case "870":
+					ctx.drawImage(shell12empty, 250+(ammoCounter*24), 550);
 					break;
 			}
 			ammoCounter++;
@@ -435,6 +530,10 @@ function doGameLoop() {
 				ctx.drawImage(sksImg, 10, 65+75*i);
 				ctx.fillText("SKS",45,130+75*i);
 				break;
+			case "870":
+				ctx.drawImage(r870Img, 10, 65+75*i);
+				ctx.fillText("870",45,130+75*i);
+				break;
 		}
 		ctx.font = "bold 22px Arial";
 		ctx.fillText(i+1,24,85+75*i);
@@ -468,7 +567,12 @@ function whatKeyUp(evt) {
 	switch (evt.keyCode) {
 	case 32: //spacebar
 		if(guns[activeGun].action != "full") { //If not full auto, use keyup to disallow holding spacebar to keep firing.
+			if(pumpCounter==0) {
+				if(guns[activeGun].action=="pump") {
+					pumpCounter=80;
+				}
 			fireBullet();
+			}
 			}
 		break;
 	case 82: // r
@@ -478,7 +582,7 @@ function whatKeyUp(evt) {
 		break;
 	
 	case 75: //k
-		if(kickCD==0) {
+		if(kickCD==0&&kickCounter==0) {
 			kickCounter = 75;
 			if(sounds) {
 				document.getElementById("kick").currentTime = 0;
@@ -489,7 +593,7 @@ function whatKeyUp(evt) {
 	
 	
 	case 83: //s
-		if(subCD==0) {
+		if(subCD==0&&subCounter==0) {
 			subCounter = 80;
 			if(sounds) {
 				document.getElementById("bass").currentTime = 0;
@@ -535,6 +639,9 @@ function whatKeyDown(evt) {
 					} else {
 						ctx.fillText("semi-automatic rifle converted to bullpup config. Tapco magazine holds thirty 7.62x39mm rounds.", 100, 110 + 75*i);
 					}
+					break;
+					case "870":
+						ctx.fillText("pump action shotgun. tube magazine holds four 12 gauge shells.", 100, 110 + 75*i);
 					break;
 				}
 				}
@@ -618,19 +725,45 @@ function whatKeyDown(evt) {
 			}
 		}
 		break;
+	// 3
+	case 51:
+		if(guns[2].purchased) {
+			if(activeGun != 2 && reloadCounter == 0) {
+				guns[activeGun].active = false;
+				activeGun = 2;
+				guns[activeGun].active = true;
+			}
+		}
+		break;
 	}
+	
 }
       
       
 function fireBullet() {
-	if(guns[activeGun].ammo > 0) {
-		bullets[bulletNum] = new bullet(heroX + 172, heroY + 65, true); 
-		bulletNum++;
-		guns[activeGun].ammo--;
-		if(sounds) {
-			var sound = document.getElementById("bulletFire");
-			sound.currentTime = 0;
-			sound.play();
+	if(guns[activeGun].name == "870") {
+		if(guns[activeGun].ammo > 0) {
+			for(i = 0;i<9;i++) {
+				shot[i] = new bullet(heroX + 180, heroY + 82, true);
+			}
+			guns[activeGun].ammo--;
+			if(sounds) {
+				var sound = document.getElementById("bulletFire");
+				sound.currentTime = 0;
+				sound.play();
+				setTimeout(function(){document.getElementById("pump").currentTime = 0; document.getElementById("pump").play(); }, 90);
+			}
+		}
+	} else {
+		if(guns[activeGun].ammo > 0) {
+			bullets[bulletNum] = new bullet(heroX + 172, heroY + 65, true); 
+			bulletNum++;
+			guns[activeGun].ammo--;
+			if(sounds) {
+				var sound = document.getElementById("bulletFire");
+				sound.currentTime = 0;
+				sound.play();
+			}
 		}
 	}
 }
@@ -644,6 +777,9 @@ function drawHero() {
 			break;
 		case "SKS":
 			ctx.drawImage(heroSKS, heroX, heroY);
+			break;
+		case "870":
+			ctx.drawImage(hero870, heroX, heroY);
 			break;
 		}
 	} else if (kickCounter > 1) { //currently kicking
