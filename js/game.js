@@ -493,6 +493,7 @@ function doGameLoop() {
 	}
 	
 	if(health<=0) {
+		var loadCheck = getCookie("level");
 		flashCounter = 0;
 		clearInterval(gameLoop);
 		clearInterval(zombieLoop);
@@ -502,7 +503,11 @@ function doGameLoop() {
 		ctx.textAlign="center"; 
 		ctx.strokeStyle = 'red';
 		ctx.strokeText("You died.",550,300);
-		ctx.drawImage(newGameImg,400,340);
+		ctx.drawImage(newGameImg,250,400);
+		ctx.drawImage(loadGameImg,650, 400);
+		if(loadCheck=="") {
+			ctx.drawImage(grayButton, 650,400);
+		}
 		started = false;
 		if(sounds) {
 			document.getElementById("death").play();
@@ -597,7 +602,7 @@ function whatKeyUp(evt) {
 	
 	
 	case 83: //s
-		if(subCD==0&&subCounter==0) {
+		if(subCD==0&&subCounter==0&&subsonicUnlocked) {
 			subCounter = 80;
 			if(sounds) {
 				document.getElementById("bass").currentTime = 0;
@@ -832,3 +837,4 @@ function drawHero() {
 		}
 	}
 }
+

@@ -33,7 +33,9 @@ var extraHeartImg = new Image();
 var kickUpgradeImg = new Image();
 var subUpgradeImg = new Image();
 var shopDialog = new Image();
+var shopBall = new Image();
 
+shopBall.src = 'img/shop-ballHighlight.png';
 shopDialog.src = 'img/shopDialog.png';
 kickUpgradeImg.src = 'img/kickUpgradeIcon.png';
 subUpgradeImg.src = 'img/subUpgradeIcon.png';
@@ -69,6 +71,14 @@ function shopInit() {
 			ctx.textAlign="end"; 
 			ctx.fillText("$", 50, 40);
 			ctx.fillText(money, 120, 40);
+			ctx.font = "40px Arial";
+			ctx.fillStyle = 'red';
+			ctx.strokeStyle = 'black';
+			ctx.fillText("Level", 1000, 500);
+			ctx.fillText(level, 1035, 500);
+			ctx.strokeText("Level", 1000, 500);
+			ctx.strokeText(level, 1035, 500);
+			
 			highlighted = true;
 		} else if(mouseX>405&&mouseX<635&&mouseY>220&&mouseY<510 && inShop) {
 			ctx.drawImage(shopHealth,0,0);
@@ -84,6 +94,14 @@ function shopInit() {
 			ctx.textAlign="end"; 
 			ctx.fillText("$", 50, 40);
 			ctx.fillText(money, 120, 40);
+			ctx.font = "40px Arial";
+			ctx.fillStyle = 'red';
+			ctx.strokeStyle = 'black';
+			ctx.fillText("Level", 1000, 500);
+			ctx.fillText(level, 1035, 500);
+			ctx.strokeText("Level", 1000, 500);
+			ctx.strokeText(level, 1035, 500);
+			
 			highlighted = true;
 		} else if(mouseX>750&&mouseY>10&&mouseY<210 && inShop) {
 			ctx.drawImage(shopDJ,0,0);
@@ -99,6 +117,14 @@ function shopInit() {
 			ctx.textAlign="end"; 
 			ctx.fillText("$", 50, 40);
 			ctx.fillText(money, 120, 40);
+			ctx.font = "40px Arial";
+			ctx.fillStyle = 'red';
+			ctx.strokeStyle = 'black';
+			ctx.fillText("Level", 1000, 500);
+			ctx.fillText(level, 1035, 500);
+			ctx.strokeText("Level", 1000, 500);
+			ctx.strokeText(level, 1035, 500);
+			
 			highlighted = true;
 		} else if(mouseX>270&&mouseX<400&&mouseY>100&&mouseY<208&&inShop) {
 			ctx.drawImage(shopDoors,0,0);
@@ -114,7 +140,38 @@ function shopInit() {
 			ctx.textAlign="end"; 
 			ctx.fillText("$", 50, 40);
 			ctx.fillText(money, 120, 40);
+			ctx.font = "40px Arial";
+			ctx.fillStyle = 'red';
+			ctx.strokeStyle = 'black';
+			ctx.fillText("Level", 1000, 500);
+			ctx.fillText(level, 1035, 500);
+			ctx.strokeText("Level", 1000, 500);
+			ctx.strokeText(level, 1035, 500);
+			
 			highlighted = true;
+		} else if (mouseX>405&&mouseX<497&&mouseY<112&&inShop) {
+			ctx.drawImage(shopBall,0,0);
+			ctx.drawImage(moneyBackImg, 30, 15);
+			for(i=0;i<health;i++) {
+				ctx.drawImage(heartImg, 20 + 30*i, 550);
+			}
+			for(i=health;i<maxHealth;i++) {
+				ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
+			}
+			ctx.font = "20px Arial";
+			ctx.fillStyle = 'green';
+			ctx.textAlign="end"; 
+			ctx.fillText("$", 50, 40);
+			ctx.fillText(money, 120, 40);
+			ctx.font = "40px Arial";
+			ctx.fillStyle = 'red';
+			ctx.strokeStyle = 'black';
+			ctx.fillText("Level", 1000, 500);
+			ctx.fillText(level, 1035, 500);
+			ctx.strokeText("Level", 1000, 500);
+			ctx.strokeText(level, 1035, 500);
+			highlighted = true;
+		
 		} else if(highlighted && inShop) {
 			ctx.drawImage(shopImg,0,0);
 			ctx.drawImage(moneyBackImg, 30, 15);
@@ -129,6 +186,13 @@ function shopInit() {
 			ctx.textAlign="end"; 
 			ctx.fillText("$", 50, 40);
 			ctx.fillText(money, 120, 40);
+			ctx.font = "40px Arial";
+			ctx.fillStyle = 'red';
+			ctx.strokeStyle = 'black';
+			ctx.fillText("Level", 1000, 500);
+			ctx.fillText(level, 1035, 500);
+			ctx.strokeText("Level", 1000, 500);
+			ctx.strokeText(level, 1035, 500);
 			highlighted = false;
 		}
 		
@@ -270,6 +334,14 @@ $("#map").click(function(e){
 		ctx.fillText("$", 50, 40);
 		ctx.fillText(money, 120, 40);
 		
+		ctx.font = "40px Arial";
+	ctx.fillStyle = 'red';
+	ctx.strokeStyle = 'black';
+	ctx.fillText("Level", 1000, 500);
+	ctx.fillText(level, 1035, 500);
+	ctx.strokeText("Level", 1000, 500);
+	ctx.strokeText(level, 1035, 500);
+		
 	for(i=0;i<health;i++) {
 		ctx.drawImage(heartImg, 20 + 30*i, 550);
 	}
@@ -281,6 +353,21 @@ $("#map").click(function(e){
 	if(x>270&&x<400&&y>100&&y<208&&inShop) {
 		inShop = false;
 		init();
+	}
+	
+	
+	if (x>405&&x<497&&y<112&&inShop) {
+		setCookie("sksUnlocked", guns[1].purchased, 365);
+		setCookie("level",level, 365);
+		setCookie("g26MaxAmmo",guns[0].maxAmmo, 365);
+		setCookie("sksMaxAmmo",guns[1].maxAmmo, 365);
+		setCookie("870Unlocked", guns[2].purchased, 365);
+		setCookie("health", health, 365);
+		setCookie("maxHealth", maxHealth, 365);
+		setCookie("subsonicUnlocked", subsonicUnlocked, 365);
+		setCookie("maxKickCD", maxKickCD, 365);
+		setCookie("maxSubCD", maxSubCD, 365);
+		setCookie("money", money, 365);
 	}
 	
 	if(x>370&&x<700&&y>54&&y<82&&healthDialogOpen) { //heal clicked
@@ -517,6 +604,14 @@ function shop() {
 	ctx.textAlign="end"; 
 	ctx.fillText("$", 50, 40);
 	ctx.fillText(money, 120, 40);
+	ctx.font = "40px Arial";
+	ctx.fillStyle = 'red';
+	ctx.strokeStyle = 'black';
+	ctx.fillText("Level", 1000, 500);
+	ctx.fillText(level, 1035, 500);
+	ctx.strokeText("Level", 1000, 500);
+	ctx.strokeText(level, 1035, 500);
+	
 	for(i=0;i<health;i++) {
 		ctx.drawImage(heartImg, 20 + 30*i, 550);
 	}
@@ -584,6 +679,13 @@ function displayGunDialog() {
 	for(i=health;i<maxHealth;i++) {
 		ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
 	}
+	ctx.font = "40px Arial";
+	ctx.fillStyle = 'red';
+	ctx.strokeStyle = 'black';
+	ctx.fillText("Level", 1000, 500);
+	ctx.fillText(level, 1035, 500);
+	ctx.strokeText("Level", 1000, 500);
+	ctx.strokeText(level, 1035, 500);
 }
 
 function displayHealthDialog() {
@@ -617,6 +719,13 @@ function displayHealthDialog() {
 	for(i=health;i<maxHealth;i++) {
 		ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
 	}
+	ctx.font = "40px Arial";
+	ctx.fillStyle = 'red';
+	ctx.strokeStyle = 'black';
+	ctx.fillText("Level", 1000, 500);
+	ctx.fillText(level, 1035, 500);
+	ctx.strokeText("Level", 1000, 500);
+	ctx.strokeText(level, 1035, 500);
 }
 
 function displayFunkDialog() {
@@ -665,4 +774,18 @@ function displayFunkDialog() {
 	for(i=health;i<maxHealth;i++) {
 		ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
 	}
+	ctx.font = "40px Arial";
+	ctx.fillStyle = 'red';
+	ctx.strokeStyle = 'black';
+	ctx.fillText("Level", 1000, 500);
+	ctx.fillText(level, 1035, 500);
+	ctx.strokeText("Level", 1000, 500);
+	ctx.strokeText(level, 1035, 500);
 }
+
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+} 

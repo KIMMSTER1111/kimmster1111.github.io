@@ -44,8 +44,13 @@ var maxHealth = 3;
 var health = 3;
 var started = false;
 var subsonicUnlocked = false;
+var loadGameImg = new Image();
+var grayButton = new Image();
+var title = new Image();
 
-
+title.src = 'img/title.png';
+grayButton.src = 'img/loadGray.png';
+loadGameImg.src = 'img/loadGame.png';
 bgImg.src = 'img/bg.png';
 newGameImg.src = 'img/newGame.png';
 shopButton.src = 'img/shopButton.png';
@@ -91,10 +96,16 @@ function startMenu() {
 	guns[1] = new gun("SKS",10,10, 40, "semi", false, false, 650);
 	guns[2] = new gun("870",4,4,25, "pump", false, false, 800);
 	
+	var loadCheck = getCookie("level");
+	
 	ctx.drawImage(bgImg,0,0);
-	ctx.drawImage(newGameImg,400,340);
+	ctx.drawImage(title,150, 0);
+	ctx.drawImage(newGameImg,250,400);
 	ctx.drawImage(soundOn, 1060, 35);
-	//ctx.drawImage(shopButton,400, 400);
+	ctx.drawImage(loadGameImg,650, 400);
+	if(loadCheck=="") {
+		ctx.drawImage(grayButton, 650,400);
+	}
 	
 	shopInit();
 	
@@ -103,7 +114,9 @@ function startMenu() {
 	var y = Math.floor((e.pageY-$("#map").offset().top));
 	
 	
-	if(x>418 && x < 600 && y >340 && y < 455 && started==false) {
+	//console.log(x,y);
+	
+	if(x>250 && x < 450 && y >400 && y < 520 && started==false) {
 		started = true;
 		money = 0;
 		health = 3;
@@ -133,6 +146,25 @@ function startMenu() {
 	//	shop();
 	//}
 	
+	if(x>650 && x < 850 && y >400 && y < 520 && started==false && loadCheck != "") {
+		started = true;
+		guns[1].purchased = getCookie("sksUnlocked");
+		guns[1].purchased = isTrue(guns[1].purchased); //this fixes a weird issue where .purchase is set to "true" or "false" instead of true or false (they're strings, not booleans)
+		level = Number(getCookie("level"));
+		guns[0].maxAmmo = Number(getCookie("g26MaxAmmo"));
+		guns[1].maxAmmo = Number(getCookie("sksMaxAmmo"));
+		guns[2].purchased = getCookie("870Unlocked");
+		guns[2].purchased = isTrue(guns[2].purchased);
+		health = Number(getCookie("health"));
+		maxHealth = Number(getCookie("maxHealth"));
+		subsonicUnlocked = getCookie("subsonicUnlocked");
+		subsonicUnlocked = isTrue(subsonicUnlocked);
+		maxKickCD = Number(getCookie("maxKickCD"));
+		maxSubCD = Number(getCookie("maxSubCD"));
+		money = Number(getCookie("money"));
+		shop();
+	}
+	
 	if(x>1060 && x < 1100 && y >0 && y < 30 && started) {
 		if(hints) {
 			hints = false;
@@ -156,3 +188,23 @@ function startMenu() {
 	
 	});
 }
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+    }
+    return "";
+} 
+
+function isTrue(string) {
+	if(string=="true") {
+		return true;
+	} else {
+		return false
+	}
+}
+	
