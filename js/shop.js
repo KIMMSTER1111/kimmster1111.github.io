@@ -32,7 +32,9 @@ var subsonicImg = new Image();
 var extraHeartImg = new Image();
 var kickUpgradeImg = new Image();
 var subUpgradeImg = new Image();
+var shopDialog = new Image();
 
+shopDialog.src = 'img/shopDialog.png';
 kickUpgradeImg.src = 'img/kickUpgradeIcon.png';
 subUpgradeImg.src = 'img/subUpgradeIcon.png';
 extraHeartImg.src = 'img/extraHeart.png';
@@ -267,6 +269,13 @@ $("#map").click(function(e){
 		ctx.textAlign="end"; 
 		ctx.fillText("$", 50, 40);
 		ctx.fillText(money, 120, 40);
+		
+	for(i=0;i<health;i++) {
+		ctx.drawImage(heartImg, 20 + 30*i, 550);
+	}
+	for(i=health;i<maxHealth;i++) {
+		ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
+	}
 	}
 	
 	if(x>270&&x<400&&y>100&&y<208&&inShop) {
@@ -276,9 +285,20 @@ $("#map").click(function(e){
 	
 	if(x>370&&x<700&&y>54&&y<82&&healthDialogOpen) { //heal clicked
 		if(health==maxHealth) {
-			alert("you don't need to be healed!"); //alerts suck, this should display some sexy pngs
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("you don't need", 440, 280);
+			ctx.fillText("to be healed!", 440, 315);
+			//alert("you don't need to be healed!"); //alerts suck, this should display some sexy pngs
 		} else if(money<50) { //insufficient funds
-			alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("insufficient", 440, 280);
+			ctx.fillText("funds.", 440, 315);
+		
+			//alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
 		} else { //purchase successful
 			money = money - 50;
 			health = maxHealth;
@@ -288,7 +308,13 @@ $("#map").click(function(e){
 	
 	if(x>370&&x<700&&y>315&&y<365&&healthDialogOpen) { //health upgrade clicked
 		if(money<(200*maxHealth)) { //insufficient funds
-			alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("insufficient", 440, 280);
+			ctx.fillText("funds.", 440, 315);
+		
+			//alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
 		} else { //purchase successful
 			money = money - (200*maxHealth);
 			maxHealth = maxHealth + 1;
@@ -299,9 +325,21 @@ $("#map").click(function(e){
 	
 	if(x>375&&x<700&&y>54&&y<112&&funkDialogOpen) { 
 		if(subsonicUnlocked) {
-			alert("you already bought this, bitch!"); //alerts suck, this should display some sexy pngs
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("you have already", 440, 280);
+			ctx.fillText("purchased this.", 440, 315);
+			
+			//alert("you already bought this, bitch!"); //alerts suck, this should display some sexy pngs
 		} else if(money<750) {
-			alert("come back with some more money, puta"); //alerts suck, this should display some sexy pngs
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("insufficient", 440, 280);
+			ctx.fillText("funds.", 440, 315);
+			
+			//alert("come back with some more money, puta"); //alerts suck, this should display some sexy pngs
 		} else {
 			money = money - 750;
 			subsonicUnlocked = true;
@@ -310,7 +348,12 @@ $("#map").click(function(e){
 	}
 	if(x>374&&x<700&&y>325&&y<405&&funkDialogOpen) {
 		if(money<500) {
-			alert("you can't afford this, cyka"); //alerts suck, this should display some sexy pngs
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("insufficient", 440, 280);
+			ctx.fillText("funds.", 440, 315);
+			//alert("you can't afford this, cyka"); //alerts suck, this should display some sexy pngs
 		} else {
 			money = money - 500;
 			maxKickCD = maxKickCD/2;
@@ -320,9 +363,22 @@ $("#map").click(function(e){
 	
 	if(x>374&&x<700&&y>410&&y<505&&funkDialogOpen) {
 		if(subsonicUnlocked == false) {
-			alert("you gotta unlock Subsonic Shockwave before you can upgrade it!");
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("you must buy", 440, 280);
+			ctx.fillText("SubShock before", 440, 315);
+			ctx.fillText("you can upgrade.", 440, 350);
+			
+			//alert("you gotta unlock Subsonic Shockwave before you can upgrade it!");
 		} else if(money<500) {
-			alert("you can't afford this, cyka"); //alerts suck, this should display some sexy pngs
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("insufficient", 440, 280);
+			ctx.fillText("funds.", 440, 315);
+			
+			//alert("you can't afford this, cyka"); //alerts suck, this should display some sexy pngs
 		} else {
 			money = money - 500;
 			maxSubCD = maxSubCD/2;
@@ -332,9 +388,21 @@ $("#map").click(function(e){
 	
 	if(x>370&&x<700&&y>54&&y<82&&gunDialogOpen) { //sks clicked
 		if(guns[1].purchased) { //sks already owned
-			alert("you already own this gun!"); //alerts suck, this should display some sexy pngs
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("you already own", 440, 280);
+			ctx.fillText("this gun!", 440, 315);
+		
+			//alert("you already own this gun!"); //alerts suck, this should display some sexy pngs
 		} else if(money<400) { //insufficient funds
-			alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("insufficient", 440, 280);
+			ctx.fillText("funds.", 440, 315);
+		
+			//alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
 		} else { //purchase successful
 			money = money - 400;
 			guns[1].purchased = true;
@@ -343,9 +411,21 @@ $("#map").click(function(e){
 	}
 	if(x>370&&x<700&&y>90&&y<186&&gunDialogOpen) { //870 clicked
 		if(guns[2].purchased) {
-			alert("you already own this!");
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("you already own", 440, 280);
+			ctx.fillText("this gun!", 440, 315);
+			
+			//alert("you already own this!");
 		} else if(money<600) {
-			alert("you ain't got enough cheese, biznatch!");
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("insufficient", 440, 280);
+			ctx.fillText("funds.", 440, 315);
+			
+			//alert("you ain't got enough cheese, biznatch!");
 		} else {
 			money = money - 600;
 			guns[2].purchased = true;
@@ -354,9 +434,21 @@ $("#map").click(function(e){
 	}
 	if(x>385&&x<685&&y>315&&y<365&&gunDialogOpen) { //g26 upgrade clicked
 		if(guns[0].maxAmmo==33) { //already owned
-			alert("you have already purchased this upgrade!"); //alerts suck, this should display some sexy pngs
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("you already own", 440, 280);
+			ctx.fillText("this upgrade!", 440, 315);
+			
+			//alert("you have already purchased this upgrade!"); //alerts suck, this should display some sexy pngs
 		} else if(money<200) { //insufficent funds
-			alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("insufficient", 440, 280);
+			ctx.fillText("funds.", 440, 315);
+			
+			//alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
 		} else { //purchase successful
 			money = money - 200;
 			guns[0].maxAmmo = 33;
@@ -367,11 +459,30 @@ $("#map").click(function(e){
 	
 	if(x>380&&x<670&&y>395&&y<435&&gunDialogOpen) { //sks upgrade clicked
 		if(guns[1].purchased==false) { //sks not purchased
-			alert("you need to purchase the SKS before you can you upgrade it!");
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("you must buy", 440, 280);
+			ctx.fillText("the SKS before", 440, 315);
+			ctx.fillText("you can upgrade.", 440, 350);
+			
+			//alert("you need to purchase the SKS before you can you upgrade it!");
 		} else if(guns[1].maxAmmo == 30) {
-			alert("you have already purchased this upgrade!");
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("you already own", 440, 280);
+			ctx.fillText("this upgrade!", 440, 315);
+			
+			//alert("you have already purchased this upgrade!");
 		} else if(money<400) {
-			alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
+			ctx.drawImage(shopDialog, 400, 225);
+			ctx.fillStyle = 'black';
+			ctx.font = "30px Arial";
+			ctx.fillText("insufficient", 440, 280);
+			ctx.fillText("funds.", 440, 315);
+			
+			//alert("you must construct additional pylons! (get more money bitch)"); //alerts suck, this should display some sexy pngs
 		} else { //purchase successful
 			money = money - 400;
 			guns[1].maxAmmo = 30;
