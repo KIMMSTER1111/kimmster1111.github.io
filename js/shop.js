@@ -523,6 +523,11 @@ function shop() {
 	for(i=health;i<maxHealth;i++) {
 		ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
 	}
+	if(sounds) {
+		document.getElementById("music").pause();
+		document.getElementById("altMusic").play();
+		
+	}
 }
 
 function displayGunDialog() {

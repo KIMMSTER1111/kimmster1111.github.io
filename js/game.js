@@ -197,7 +197,11 @@ function init() {
 	window.addEventListener('keydown', whatKeyDown, true);
 	window.addEventListener('keyup', whatKeyUp, true);
 	
-	
+	if(sounds) {
+		document.getElementById("altMusic").pause();
+		document.getElementById("music").play();
+		
+	}
 }
 
 	
