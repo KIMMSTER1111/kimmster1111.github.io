@@ -207,363 +207,37 @@ function init() {
 	
 //Main loop to listen for keypresses and check for collisions, etc
 function doGameLoop() {
-	ctx.drawImage(map, 0,0);
-	if(pumpCounter>0) {
+	ctx.drawImage(map, 0,0); //draw map
+	if(pumpCounter>0) { //check if you're in the middle of pumping? wtf is this noise?
 		pumpCounter--;
 	}
-    
-    if(guns[activeGun].ammo==0 && reloadCounter < guns[activeGun].reloadSpeed) {
-		reloadCounter = reloadCounter+2;
-		ctx.font = '20px Arial';
-		ctx.strokeStyle = 'white';
-		ctx.strokeText("reloading...", 420,550);
-		if(sounds && reloadCounter ==2) {
-			switch(guns[activeGun].name) {
-				case "G26":
-					document.getElementById("handgunReload").currentTime = 0;
-					document.getElementById("handgunReload").play();
-					break;
-				case "SKS":
-					document.getElementById("rifleReload").currentTime = 0;
-					document.getElementById("rifleReload").play();
-					break;
-				case "870":
-					document.getElementById("shotgunReload").currentTime = 0;
-					document.getElementById("shotgunReload").play();
-					break;
-			}
-		}
-	} else if (guns[activeGun].ammo==0 && reloadCounter >= guns[activeGun].reloadSpeed) {
-		guns[activeGun].ammo = guns[activeGun].maxAmmo;
-		reloadCounter = 0;
-	}
-	for(var j = 0; j < zombies.length; j++) {
-		if(zombies[j].dead==false){ 
-			if(randomInt(1,100)>98 && zombies[j].x > 50) { //Roll 1d100 and move the zombie closer if a 99 or 100 is rolled AND the zombie isn't too close already.
-				zombies[j].x = zombies[j].x - zombies[j].speed;
-			} 
-			if(zombies[j].x < heroX + 130 && zombies[j].y + zombies[j].height > heroY && zombies[j].y < heroY + 200 && kickCounter == 0) {
-				health--;
-				zombies[j].dead = true; //This prevents the damage from recurring every millisecond. Not logical though.
-				if(sounds) {
-					document.getElementById("hit").currentTime = 0;
-					document.getElementById("hit").play();
-				}
-				if(health>0) {
-					flashCounter = 50;
-				} else {
-					flashCounter = 0;
-				}
-			} else if (zombies[j].x < heroX + 250 && zombies[j].y + zombies[j].height + 50 > heroY && zombies[j].y < heroY + 200 && kickCounter > 0) {
-				zombies[j].dead = true;
-				money = money + randomInt(3 + 2*level, 18 + 2*level);
-			}
-				
-			if(zombies[j].x <= 50) {
-				//zombie reached left side of screen
-				health--;
-				zombies[j].dead = true;
-				if(sounds) {
-					document.getElementById("hit").currentTime = 0;
-					document.getElementById("hit").play();
-				}
-				if(health>0) {
-					flashCounter = 50;
-				} else {
-					flashCounter = 0;
-				}
-			}
-			if(zombies[j].type ==1) {	
-				ctx.drawImage(zombie1Img, zombies[j].x, zombies[j].y);
-			} else if(zombies[j].type ==2) {
-				ctx.drawImage(zombie2Img, zombies[j].x, zombies[j].y);
-			} else if(zombies[j].type==3) {
-				ctx.drawImage(zombieCatImg, zombies[j].x, zombies[j].y);
-			} else if(zombies[j].type==4) {
-				ctx.drawImage(zombie3, zombies[j].x, zombies[j].y);
-			} else if(zombies[j].type==5) {
-				ctx.drawImage(zombie35, zombies[j].x, zombies[j].y);
-			}
-		} else {
-			if(zombies[j].rot < 1000) {
-				ctx.drawImage(zombieDeadImg, zombies[j].x, zombies[j].y);
-				zombies[j].rot = zombies[j].rot + 1;
-			} else {
-				//Removing objects from array fucks up the loop. Not drawing the zombie fixes the immediate
-				//problem, but could result in the array getting too large.  We could just dump it between levels and call that good
-				//zombies.splice(j, 1)
-			}
-		}
-	}
+    checkIfReloading(); //check if reloading and if so, increment counter OR discontinue counter if end is reached
+
+	moveZombies(); //loop through zombies and move them or cause damage if they are at hero
+
+	moveBullets(); //loop through bullets and move them or remove and damage zombies if there is a collision
+
+	moveShot(); //loop through shot pellets and handle similarly to bullets, but they have y-axis velocity
 	
-	for(var i = 0; i < bullets.length; i++) {
-		if(bullets[i].exists) { 
-			ctx.drawImage(bulletImg, bullets[i].x, bullets[i].y);
-			bullets[i].x += 15;  //This should maybe be a variable to allow for a variety of bullet speeds
-			if(bullets[i].x > 1100) {
-				bullets[i].exists = false;
-				bullets.splice(i, 1);
-				bulletNum--;
-			}
-		}
-		for(j = 0; j < zombies.length; j++) {
-			if(bullets[i].x > zombies[j].x && bullets[i].y > zombies[j].y && bullets[i].y < zombies[j].y + zombies[j].height && bullets[i].exists && zombies[j].dead ==false) {
-			bullets[i].exists = false;
-			ctx.drawImage(blood, zombies[j].x  + 50, bullets[i].y); //this should probably exist for longer than 1ms
-			if(zombies[j].hp <= 0) {
-				if(zombies[j].type==4) {
-					zombies[j].type=5;
-					zombies[j].hp=145;
-					zombies[j].speed=60;
-				} else {
-				zombies[j].dead = true;
-				if(sounds) {
-					if(zombies[j].type != 3) {
-						document.getElementById("kill").currentTime = 0;
-						document.getElementById("kill").play();
-					} else {
-						document.getElementById("catKill").currentTime = 0;
-						document.getElementById("catKill").play();
-					}
-				}
-					money += randomInt(3+2*level,2*level+18);
-				
-				}
-			} else {
-				zombies[j].hp = zombies[j].hp - randomInt(guns[activeGun].damage-8, guns[activeGun].damage+8); //this damage should be a variable to account for different guns later
-			}
-			bullets.splice(i, 1);
-			bulletNum--;
-			//If you kill zombies out of order, this can cause new zombies to overwrite existing ones. Need good way to despawn zombies and prevent zombieNum from blowing up!
-			//zombieNum--;
-			}
-		}
-    }
+	drawHero(); //draw the hero
 	
-	if(shot.length > 0) { //shotgun loop (might blow everything up/slow the game down unacceptably)
-		for(i=0;i<shot.length;i++) {
-			if(shot[i].exists) {
-				ctx.drawImage(shotImg, shot[i].x, shot[i].y);
-				shot[i].x += 15;
-				switch(i) {
-					case 0:
-						shot[i].y = shot[i].y - 4;
-						break;
-					case 1:
-						shot[i].y = shot[i].y - 3;
-						break;
-					case 2:
-						shot[i].y = shot[i].y - 2;
-						break;
-					case 3:
-						shot[i].y = shot[i].y - 1;
-						break;
-					case 5:
-						shot[i].y = shot[i].y + 1;
-						break;
-					case 6:
-						shot[i].y = shot[i].y + 2;
-						break;
-					case 7:
-						shot[i].y = shot[i].y + 3;
-						break;
-					case 8:
-						shot[i].y = shot[i].y + 4;
-						break;
-				}
-				if(shot[i].x > 1100) {
-					shot[i].exists = false;
-					shot.splice(i, 1);
-				}
-				
-				for(j = 0; j < zombies.length; j++) {
-			if(shot[i].x > zombies[j].x && shot[i].y > zombies[j].y && shot[i].y < zombies[j].y + zombies[j].height && shot[i].exists && zombies[j].dead ==false) {
-			shot[i].exists = false;
-			ctx.drawImage(blood, zombies[j].x  + 50, shot[i].y); //this should probably exist for longer than 1ms
-			if(zombies[j].hp <= 0) {
-				if(zombies[j].type==4) {
-					zombies[j].type=5;
-					zombies[j].hp=145;
-					zombies[j].speed=60;
-				} else {
-				zombies[j].dead = true;
-				if(sounds) {
-					if(zombies[j].type != 3) {
-						document.getElementById("kill").currentTime = 0;
-						document.getElementById("kill").play();
-					} else {
-						document.getElementById("catKill").currentTime = 0;
-						document.getElementById("catKill").play();
-					}
-				}
-					money += randomInt(3+level*2,2*level+18);
-				}
-			} else {
-				zombies[j].hp = zombies[j].hp - randomInt(guns[activeGun].damage-8, guns[activeGun].damage+8); //this damage should be a variable to account for different guns later
-			}
-			shot.splice(i, 1);
-			}
-		}
-				
-				
-			}
-		}
-	}
-				//end shotgun loop
-	drawHero();
+	drawAmmoBar(); //draw the ammo bar at the bottom of screen based on rounds in mag and total mag capacity
 	
-		
+	drawMoneyBar(); //draw money bar based on hero's cash
 	
-	var ammoCounter = 0;
-	for (i = 0; i < guns[activeGun].maxAmmo; i++) {
-		if(ammoCounter < guns[activeGun].ammo) {
-			switch(guns[activeGun].name) {
-				case "G26":
-					ctx.drawImage(cart9mmImg, 250+(ammoCounter*18), 550);
-					break;
-				case "SKS":
-					ctx.drawImage(cart762Img, 250+(ammoCounter*18), 550);
-					break;
-				case "870":
-					ctx.drawImage(shell12, 250+(ammoCounter*24), 550);
-					break;
-			}
-			ammoCounter++;
-		} else {
-			switch(guns[activeGun].name) {
-				case "G26":
-					ctx.drawImage(emptyCart9mmImg, 250+(ammoCounter*18), 550);
-					break;
-				case "SKS":
-					ctx.drawImage(emptyCart762Img, 250+(ammoCounter*18), 550);
-					break;
-				case "870":
-					ctx.drawImage(shell12empty, 250+(ammoCounter*24), 550);
-					break;
-			}
-			ammoCounter++;
-		}
-	}
-	if(guns[activeGun].ammo < guns[activeGun].maxAmmo && guns[activeGun].ammo > 0 && hints) {
-		ctx.font = "12px Arial";
-		ctx.strokeStyle = 'black';
-		ctx.strokeText("press r to reload", 420, 550);
-	}
+	drawHints(); //write the hints about what buttons and keys do what if hints are turned on
+
+	drawSoundIcon(); //draw appropriate icon depending on if sound is on or off
 	
+	drawLevelLabel(); //write the level number if at beginning of level
 	
-	ctx.drawImage(moneyBackImg, 30, 15);
-	ctx.font = "20px Arial";
-	ctx.fillStyle = 'green';
-	ctx.textAlign="end"; 
-	ctx.fillText("$", 50, 40);
-	ctx.fillText(money, 120, 40);
+	drawDamageFlash(); //draw damage flash if hero took damage this cycle
 	
-	if(hints) {
-		ctx.drawImage(hintsOn, 1060, -5);
-		ctx.font = '10px arial';
-		ctx.strokeStyle = 'white';
-		ctx.strokeText("click to turn hints off", 1060, 20);
-		ctx.strokeText("use spacebar to shoot", 740, 20);
-		ctx.strokeText("press Esc to pause", 250, 20);
-		ctx.strokeText("click to toggle sound", 1060, 60);
-		ctx.strokeText("press the number of the gun you want to use", 230, 65);
-	} else {
-		ctx.drawImage(hintsOff, 1060, -5);
-	}
+	checkIfDead(); //if dead, present new game or load game (if available) option(s)
 	
-	if(sounds) {
-		ctx.drawImage(soundOn, 1060, 35);
-		
-	} else {
-		ctx.drawImage(soundOff, 1060, 35);
-	}
+	drawGunBar(); //draw available guns and highlight the selected one
 	
-	if(levelCounter > 0) {
-		ctx.textAlign="center"; 
-		ctx.font = '60px courier';
-		ctx.fillStyle = 'red';
-		ctx.fillText("LEVEL",500,300);
-		ctx.fillText(level,620,300);
-		levelCounter--;
-	}
-	
-	if(flashCounter > 0) {
-		ctx.drawImage(flashImg,0,0);
-		flashCounter--;
-	}
-	
-	if(health<=0) {
-		var loadCheck = getCookie("level");
-		flashCounter = 0;
-		clearInterval(gameLoop);
-		clearInterval(zombieLoop);
-		ctx.drawImage(grayImg,0,0);
-		ctx.drawImage(deathBloodImg,0,0);
-		ctx.font = "50px Arial";
-		ctx.textAlign="center"; 
-		ctx.strokeStyle = 'red';
-		ctx.strokeText("You died.",550,300);
-		ctx.drawImage(newGameImg,250,400);
-		ctx.drawImage(loadGameImg,650, 400);
-		if(loadCheck=="") {
-			ctx.drawImage(grayButton, 650,400);
-		}
-		started = false;
-		if(sounds) {
-			document.getElementById("death").play();
-		}
-	} else {
-		for(i=0;i<health;i++) {
-			ctx.drawImage(heartImg, 20 + 30*i, 550);
-		}
-		for(i=health;i<maxHealth;i++) {
-			ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
-		}
-	}
-	
-	for(i=0; i<guns.length; i++) {
-		if(guns[i].purchased == true) {
-		ctx.drawImage(gunBG, 10, 65+75*i);
-		ctx.font = "12px Arial";
-		ctx.textAlign="center"; 
-		ctx.fillStyle = 'black';
-		if(guns[i].active) {
-			ctx.drawImage(gunSelectedImg, 10, 65+75*i);
-		}
-		switch(guns[i].name) {
-			case "G26":
-				ctx.drawImage(g26Img, 10, 65+75*i);
-				ctx.fillText("Glock 26",45,130+75*i);
-				break;
-			case "SKS":
-				ctx.drawImage(sksImg, 10, 65+75*i);
-				ctx.fillText("SKS",45,130+75*i);
-				break;
-			case "870":
-				ctx.drawImage(r870Img, 10, 65+75*i);
-				ctx.fillText("870",45,130+75*i);
-				break;
-		}
-		ctx.font = "bold 22px Arial";
-		ctx.fillText(i+1,24,85+75*i);
-		}
-	}
-	if(levelTimer > 0) {
-		ctx.textAlign="center"; 
-		ctx.font = "30px Arial";
-		ctx.fillStyle = 'black';
-		ctx.fillText(((levelTimer/1000)*10).toFixed(2),550,40);
-		levelTimer--;
-	} else {
-		clearInterval(gameLoop);
-		clearInterval(zombieLoop);
-		ctx.font = '60px courier';
-		ctx.fillStyle = 'red';
-		ctx.fillText("LEVEL COMPLETE",550,300);
-		setTimeout(shop, 1400);
-		level++;
-	}
-	
+	drawTimer(); //draw the time until level is over
 	
 }
 
@@ -747,8 +421,7 @@ function whatKeyDown(evt) {
 	}
 	
 }
-      
-      
+
 function fireBullet() {
 	if(guns[activeGun].name == "870") {
 		if(guns[activeGun].ammo > 0) {
@@ -838,3 +511,377 @@ function drawHero() {
 	}
 }
 
+function checkIfReloading() {
+	    if(guns[activeGun].ammo==0 && reloadCounter < guns[activeGun].reloadSpeed) {
+		reloadCounter = reloadCounter+2;
+		ctx.font = '20px Arial';
+		ctx.strokeStyle = 'white';
+		ctx.strokeText("reloading...", 420,550);
+		if(sounds && reloadCounter ==2) {
+			switch(guns[activeGun].name) {
+				case "G26":
+					document.getElementById("handgunReload").currentTime = 0;
+					document.getElementById("handgunReload").play();
+					break;
+				case "SKS":
+					document.getElementById("rifleReload").currentTime = 0;
+					document.getElementById("rifleReload").play();
+					break;
+				case "870":
+					document.getElementById("shotgunReload").currentTime = 0;
+					document.getElementById("shotgunReload").play();
+					break;
+			}
+		}
+	} else if (guns[activeGun].ammo==0 && reloadCounter >= guns[activeGun].reloadSpeed) {
+		guns[activeGun].ammo = guns[activeGun].maxAmmo;
+		reloadCounter = 0;
+	}
+}
+
+function moveZombies() {
+		for(var j = 0; j < zombies.length; j++) {
+		if(zombies[j].dead==false){ 
+			if(randomInt(1,100)>98 && zombies[j].x > 50) { //Roll 1d100 and move the zombie closer if a 99 or 100 is rolled AND the zombie isn't too close already.
+				zombies[j].x = zombies[j].x - zombies[j].speed;
+			} 
+			if(zombies[j].x < heroX + 130 && zombies[j].y + zombies[j].height > heroY && zombies[j].y < heroY + 200 && kickCounter == 0) {
+				health--;
+				zombies[j].dead = true; //This prevents the damage from recurring every millisecond. Not logical though.
+				if(sounds) {
+					document.getElementById("hit").currentTime = 0;
+					document.getElementById("hit").play();
+				}
+				if(health>0) {
+					flashCounter = 50;
+				} else {
+					flashCounter = 0;
+				}
+			} else if (zombies[j].x < heroX + 250 && zombies[j].y + zombies[j].height + 50 > heroY && zombies[j].y < heroY + 200 && kickCounter > 0) {
+				zombies[j].dead = true;
+				money = money + randomInt(3 + 2*level, 18 + 2*level);
+			}
+				
+			if(zombies[j].x <= 50) {
+				//zombie reached left side of screen
+				health--;
+				zombies[j].dead = true;
+				if(sounds) {
+					document.getElementById("hit").currentTime = 0;
+					document.getElementById("hit").play();
+				}
+				if(health>0) {
+					flashCounter = 50;
+				} else {
+					flashCounter = 0;
+				}
+			}
+			if(zombies[j].type ==1) {	
+				ctx.drawImage(zombie1Img, zombies[j].x, zombies[j].y);
+			} else if(zombies[j].type ==2) {
+				ctx.drawImage(zombie2Img, zombies[j].x, zombies[j].y);
+			} else if(zombies[j].type==3) {
+				ctx.drawImage(zombieCatImg, zombies[j].x, zombies[j].y);
+			} else if(zombies[j].type==4) {
+				ctx.drawImage(zombie3, zombies[j].x, zombies[j].y);
+			} else if(zombies[j].type==5) {
+				ctx.drawImage(zombie35, zombies[j].x, zombies[j].y);
+			}
+		} else {
+			if(zombies[j].rot < 1000) {
+				ctx.drawImage(zombieDeadImg, zombies[j].x, zombies[j].y);
+				zombies[j].rot = zombies[j].rot + 1;
+			} else {
+				//Removing objects from array fucks up the loop. Not drawing the zombie fixes the immediate
+				//problem, but could result in the array getting too large.  We could just dump it between levels and call that good
+				//zombies.splice(j, 1)
+			}
+		}
+	}
+}
+
+function moveBullets() {
+		for(var i = 0; i < bullets.length; i++) {
+		if(bullets[i].exists) { 
+			ctx.drawImage(bulletImg, bullets[i].x, bullets[i].y);
+			bullets[i].x += 15;  //This should maybe be a variable to allow for a variety of bullet speeds
+			if(bullets[i].x > 1100) {
+				bullets[i].exists = false;
+				bullets.splice(i, 1);
+				bulletNum--;
+			}
+		}
+		for(j = 0; j < zombies.length; j++) {
+			if(bullets[i].x > zombies[j].x && bullets[i].y > zombies[j].y && bullets[i].y < zombies[j].y + zombies[j].height && bullets[i].exists && zombies[j].dead ==false) {
+			bullets[i].exists = false;
+			ctx.drawImage(blood, zombies[j].x  + 50, bullets[i].y); //this should probably exist for longer than 1ms
+			if(zombies[j].hp <= 0) {
+				if(zombies[j].type==4) {
+					zombies[j].type=5;
+					zombies[j].hp=145;
+					zombies[j].speed=60;
+				} else {
+				zombies[j].dead = true;
+				if(sounds) {
+					if(zombies[j].type != 3) {
+						document.getElementById("kill").currentTime = 0;
+						document.getElementById("kill").play();
+					} else {
+						document.getElementById("catKill").currentTime = 0;
+						document.getElementById("catKill").play();
+					}
+				}
+					money += randomInt(3+2*level,2*level+18);
+				
+				}
+			} else {
+				zombies[j].hp = zombies[j].hp - randomInt(guns[activeGun].damage-8, guns[activeGun].damage+8); //this damage should be a variable to account for different guns later
+			}
+			bullets.splice(i, 1);
+			bulletNum--;
+			//If you kill zombies out of order, this can cause new zombies to overwrite existing ones. Need good way to despawn zombies and prevent zombieNum from blowing up!
+			//zombieNum--;
+			}
+		}
+    }
+}
+
+function moveShot() {
+	if(shot.length > 0) { //shotgun loop (might blow everything up/slow the game down unacceptably)
+		for(i=0;i<shot.length;i++) {
+			if(shot[i].exists) {
+				ctx.drawImage(shotImg, shot[i].x, shot[i].y);
+				shot[i].x += 15;
+				switch(i) {
+					case 0:
+						shot[i].y = shot[i].y - 4;
+						break;
+					case 1:
+						shot[i].y = shot[i].y - 3;
+						break;
+					case 2:
+						shot[i].y = shot[i].y - 2;
+						break;
+					case 3:
+						shot[i].y = shot[i].y - 1;
+						break;
+					case 5:
+						shot[i].y = shot[i].y + 1;
+						break;
+					case 6:
+						shot[i].y = shot[i].y + 2;
+						break;
+					case 7:
+						shot[i].y = shot[i].y + 3;
+						break;
+					case 8:
+						shot[i].y = shot[i].y + 4;
+						break;
+				}
+				if(shot[i].x > 1100) {
+					shot[i].exists = false;
+					shot.splice(i, 1);
+				}
+				
+				for(j = 0; j < zombies.length; j++) {
+			if(shot[i].x > zombies[j].x && shot[i].y > zombies[j].y && shot[i].y < zombies[j].y + zombies[j].height && shot[i].exists && zombies[j].dead ==false) {
+			shot[i].exists = false;
+			ctx.drawImage(blood, zombies[j].x  + 50, shot[i].y); //this should probably exist for longer than 1ms
+			if(zombies[j].hp <= 0) {
+				if(zombies[j].type==4) {
+					zombies[j].type=5;
+					zombies[j].hp=145;
+					zombies[j].speed=60;
+				} else {
+				zombies[j].dead = true;
+				if(sounds) {
+					if(zombies[j].type != 3) {
+						document.getElementById("kill").currentTime = 0;
+						document.getElementById("kill").play();
+					} else {
+						document.getElementById("catKill").currentTime = 0;
+						document.getElementById("catKill").play();
+					}
+				}
+					money += randomInt(3+level*2,2*level+18);
+				}
+			} else {
+				zombies[j].hp = zombies[j].hp - randomInt(guns[activeGun].damage-8, guns[activeGun].damage+8); //this damage should be a variable to account for different guns later
+			}
+			shot.splice(i, 1);
+			}
+		}
+				
+				
+			}
+		}
+	}
+}
+
+function drawAmmoBar() {
+	var ammoCounter = 0;
+	for (i = 0; i < guns[activeGun].maxAmmo; i++) {
+		if(ammoCounter < guns[activeGun].ammo) {
+			switch(guns[activeGun].name) {
+				case "G26":
+					ctx.drawImage(cart9mmImg, 250+(ammoCounter*18), 550);
+					break;
+				case "SKS":
+					ctx.drawImage(cart762Img, 250+(ammoCounter*18), 550);
+					break;
+				case "870":
+					ctx.drawImage(shell12, 250+(ammoCounter*24), 550);
+					break;
+			}
+			ammoCounter++;
+		} else {
+			switch(guns[activeGun].name) {
+				case "G26":
+					ctx.drawImage(emptyCart9mmImg, 250+(ammoCounter*18), 550);
+					break;
+				case "SKS":
+					ctx.drawImage(emptyCart762Img, 250+(ammoCounter*18), 550);
+					break;
+				case "870":
+					ctx.drawImage(shell12empty, 250+(ammoCounter*24), 550);
+					break;
+			}
+			ammoCounter++;
+		}
+	}
+	if(guns[activeGun].ammo < guns[activeGun].maxAmmo && guns[activeGun].ammo > 0 && hints) {
+		ctx.font = "12px Arial";
+		ctx.strokeStyle = 'black';
+		ctx.strokeText("press r to reload", 420, 550);
+	}
+}
+
+function drawMoneyBar() {
+	ctx.drawImage(moneyBackImg, 30, 15);
+	ctx.font = "20px Arial";
+	ctx.fillStyle = 'green';
+	ctx.textAlign="end"; 
+	ctx.fillText("$", 50, 40);
+	ctx.fillText(money, 120, 40);
+}
+
+function drawHints() {
+	if(hints) {
+		ctx.drawImage(hintsOn, 1060, -5);
+		ctx.font = '10px arial';
+		ctx.strokeStyle = 'white';
+		ctx.strokeText("click to turn hints off", 1060, 20);
+		ctx.strokeText("use spacebar to shoot", 740, 20);
+		ctx.strokeText("press Esc to pause", 250, 20);
+		ctx.strokeText("click to toggle sound", 1060, 60);
+		ctx.strokeText("press the number of the gun you want to use", 230, 65);
+	} else {
+		ctx.drawImage(hintsOff, 1060, -5);
+	}
+}
+
+function drawSoundIcon() {
+	if(sounds) {
+		ctx.drawImage(soundOn, 1060, 35);
+		
+	} else {
+		ctx.drawImage(soundOff, 1060, 35);
+	}
+}
+
+function drawLevelLabel() {
+	if(levelCounter > 0) {
+		ctx.textAlign="center"; 
+		ctx.font = '60px courier';
+		ctx.fillStyle = 'red';
+		ctx.fillText("LEVEL",500,300);
+		ctx.fillText(level,620,300);
+		levelCounter--;
+	}
+}
+
+function drawDamageFlash() {
+	if(flashCounter > 0) {
+		ctx.drawImage(flashImg,0,0);
+		flashCounter--;
+	}
+}
+
+function checkIfDead() {
+	if(health<=0) {
+		var loadCheck = getCookie("level");
+		flashCounter = 0;
+		clearInterval(gameLoop);
+		clearInterval(zombieLoop);
+		ctx.drawImage(grayImg,0,0);
+		ctx.drawImage(deathBloodImg,0,0);
+		ctx.font = "50px Arial";
+		ctx.textAlign="center"; 
+		ctx.strokeStyle = 'red';
+		ctx.strokeText("You died.",550,300);
+		ctx.drawImage(newGameImg,250,400);
+		ctx.drawImage(loadGameImg,650, 400);
+		if(loadCheck=="") {
+			ctx.drawImage(grayButton, 650,400);
+		}
+		started = false;
+		if(sounds) {
+			document.getElementById("death").play();
+		}
+	} else {
+		for(i=0;i<health;i++) {
+			ctx.drawImage(heartImg, 20 + 30*i, 550);
+		}
+		for(i=health;i<maxHealth;i++) {
+			ctx.drawImage(emptyHeartImg, 20 + 30*i, 550);
+		}
+	}
+}
+
+function drawGunBar() {
+	for(i=0; i<guns.length; i++) {
+		if(guns[i].purchased == true) {
+		ctx.drawImage(gunBG, 10, 65+75*i);
+		ctx.font = "12px Arial";
+		ctx.textAlign="center"; 
+		ctx.fillStyle = 'black';
+		if(guns[i].active) {
+			ctx.drawImage(gunSelectedImg, 10, 65+75*i);
+		}
+		switch(guns[i].name) {
+			case "G26":
+				ctx.drawImage(g26Img, 10, 65+75*i);
+				ctx.fillText("Glock 26",45,130+75*i);
+				break;
+			case "SKS":
+				ctx.drawImage(sksImg, 10, 65+75*i);
+				ctx.fillText("SKS",45,130+75*i);
+				break;
+			case "870":
+				ctx.drawImage(r870Img, 10, 65+75*i);
+				ctx.fillText("870",45,130+75*i);
+				break;
+		}
+		ctx.font = "bold 22px Arial";
+		ctx.fillText(i+1,24,85+75*i);
+		}
+	}
+}
+
+function drawTimer() {
+	if(levelTimer > 0) {
+		ctx.textAlign="center"; 
+		ctx.font = "30px Arial";
+		ctx.fillStyle = 'black';
+		ctx.fillText(((levelTimer/1000)*10).toFixed(2),550,40);
+		levelTimer--;
+	} else {
+		clearInterval(gameLoop);
+		clearInterval(zombieLoop);
+		ctx.font = '60px courier';
+		ctx.fillStyle = 'red';
+		ctx.fillText("LEVEL COMPLETE",550,300);
+		setTimeout(shop, 1400);
+		level++;
+	}
+}
