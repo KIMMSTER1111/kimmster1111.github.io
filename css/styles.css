@@ -29,8 +29,7 @@ q:before, q:after { content:''}
 strong { font-weight:bold }
 em { font-style:italic }
 a img { border:none; outline: none; }
-/* end reset 
-leave reset css as is and add overriding styles below */
+/* end reset */
 
 body, html {
 	background: #040404;
@@ -84,7 +83,6 @@ canvas#map {
 	bottom:0;
 	height: 30px;
 	width:100%;
-	/* min-height: 30em; */
 	}
 #footer a:link, a:visited, a:active {
 	color: #440000;
